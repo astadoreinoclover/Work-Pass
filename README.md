@@ -17,10 +17,12 @@ npm i
 # Inicie o servidor web
 npm run web
 
+```bash
 ## Rodar o Front-end
 
 Para rodar o projeto back-end, siga os passos abaixo:
 
+```bash
 # Navegue até o diretório do back-end
 cd Back
 
