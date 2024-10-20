@@ -21,9 +21,6 @@ Agora você pode prosseguir para o back-end.
 ````
 
 
-
-#Rodar o Back-end
-
 ## Rodar o Back-end
 Para rodar o projeto back-end, siga os passos abaixo:
 
