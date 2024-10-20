@@ -18,11 +18,17 @@ npm i
 npm run web
 Agora você pode prosseguir para o back-end.
 
-Rodar o Back-end
+````
+
+
+
+#Rodar o Back-end
+
+## Rodar o Back-end
 Para rodar o projeto back-end, siga os passos abaixo:
 
-bash
-Copiar código
+```bash
+
 # Navegue até o diretório do back-end
 cd Back
 
@@ -31,4 +37,7 @@ npx prisma migrate dev
 
 # Inicie o servidor
 node server.js
+
+```
+
 Após iniciar o back-end, seu aplicativo estará pronto para uso.
