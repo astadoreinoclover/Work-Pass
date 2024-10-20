@@ -1,0 +1,154 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Empresa {
+  id                Int       @id @default(autoincrement())
+  nome              String
+  cnpj              String    @unique
+  dataContratacao   DateTime
+  tempoDeContrato   Int
+  statusDoPlano     StatusPlano
+  users             User[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  cpf       String
+  numero    String
+  departamento String
+  funcao String 
+  dataNascimento String
+  role      Role     @default(USER)
+  id_empresa Int
+  empresa   Empresa  @relation(fields: [id_empresa], references: [id])
+  enderecos Endereco[]
+  logs      Log[]
+  gaming    Gaming?
+  tasks     UserTask[]
+  carreira  PlanoDeCarreira?
+  habilidades HabilidadeUser[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Endereco {
+  id        Int    @id @default(autoincrement())
+  id_user   Int
+  bairro    String
+  numero    String
+  rua       String
+  complemento String
+  cidade    String
+  estado    String
+  pais      String
+  user      User   @relation(fields: [id_user], references: [id])
+}
+
+model Log {
+  id         Int      @id @default(autoincrement())
+  categoria  Categoria
+  user_id    Int
+  descricao  String
+  dataHora   DateTime
+  user       User     @relation(fields: [user_id], references: [id])
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  titulo      String
+  descricao   String
+  valorEntrega Int
+  habilidadeId Int
+  tipoEntrega String
+  dataFinal   DateTime
+  usersTasks  UserTask[]
+}
+
+model UserTask {
+  id        Int      @id @default(autoincrement())
+  user_id   Int
+  task_id   Int
+  status    StatusTask
+  user      User     @relation(fields: [user_id], references: [id])
+  task      Task     @relation(fields: [task_id], references: [id])
+}
+
+model Gaming {
+  id                Int      @id @default(autoincrement())
+  xp                Int      @default(0)
+  nivel             Int      @default(1)
+  user_id           Int      @unique
+  xpNecessarioParaSubirNivel Int @default(50)
+  user              User     @relation(fields: [user_id], references: [id])
+}
+
+model PlanoDeCarreira {
+  id                Int      @id @default(autoincrement())
+  user_id           Int      @unique
+  funcaoDesejada    String
+  departamento      String
+  user              User     @relation(fields: [user_id], references: [id])
+}
+
+model Habilidade {
+  id                Int      @id @default(autoincrement())
+  nome              String
+  users             HabilidadeUser[]
+}
+
+model HabilidadeUser {
+  id                Int      @id @default(autoincrement())
+  id_habilidade     Int
+  user_id           Int
+  xp                Int      @default(0)
+  nivel             Int      @default(1)
+  xpNecessarioParaSubirNivel Int @default(50)
+  habilidade        Habilidade @relation(fields: [id_habilidade], references: [id])
+  user              User      @relation(fields: [user_id], references: [id])
+}
+
+// Enums
+enum Role {
+  USER
+  MANAGER
+  ADMIN
+}
+
+enum StatusPlano {
+  ATIVO
+  VENCIDO
+}
+
+enum Categoria {
+  LOGIN
+  LOGOUT
+  TASK_CREATED
+  TASK_UPDATED
+  TASK_COMPLETED
+  FUNCIONARIO_CADASTRADO
+  GERENTE_CADASTRADO
+  FUNCIONARIO_EXCLUIDO
+  ACESSO_MODIFICADO
+  DADOS_EDITADOS
+  SUBIU_NIVEL
+  NOVA_HABILIDADE
+  TROCA_SENHA
+  TASK_CONCLUIDA
+}
+
+enum StatusTask {
+  EM_ANDAMENTO
+  CONCLUIDA
+  NAO_ENTREGUE
+}
