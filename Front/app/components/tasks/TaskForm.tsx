@@ -28,8 +28,8 @@ const TaskForm = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { width, height } = useWindowDimensions();
 
-  const fetchEmployees = async (empresa: string, department: string) => {
-    const foundEmployees = await getFuncionarioTask(department, empresa);
+  const fetchEmployees = async (id_empresa: number, department: string) => {
+    const foundEmployees = await getFuncionarioTask(department, id_empresa);
     setEmployees(foundEmployees);
 
     const initialSelection: { [id: number]: boolean } = {};
@@ -38,7 +38,7 @@ const TaskForm = () => {
   };
 
   useEffect(() => {
-    fetchEmployees(authContext.authData?.empresa||'Falha', authContext.authData?.departament || ''); 
+    fetchEmployees(authContext.authData?.id_empresa || 0, authContext.authData?.departamento || ''); 
   }, []);
 
   const handleSubmit = () => {

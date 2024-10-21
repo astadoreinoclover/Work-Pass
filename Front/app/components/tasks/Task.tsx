@@ -32,13 +32,12 @@ export default function Ranking() {
   useEffect(() => {
     const fetchRanking = async () => {
       try {
-        // Verifica se o valor de authContext.authData está correto antes de chamar getTasks
         const department = authContext.authData?.departamento || 'Geral';
         const empresa = authContext.authData?.id_empresa || 0;
         const status = filterTask;
-  
-        console.log('Chamando getTasks com:', { department, status, empresa }); // Debug para verificar os parâmetros
-  
+
+        console.log('Chamando getTasks com:', { department, status, empresa });
+
         const data = await getTasks(department, status, empresa);
         console.log('Dados do ranking recebidos:', data);
         setEmployeesTask(data);
