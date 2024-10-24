@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, useWindowDimensions, Text, TouchableOpacity } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { View, StyleSheet, useWindowDimensions, Text, TouchableOpacity, Switch } from 'react-native';
 import InputAddFunc from './RenderAddFunc';
 import ProgressBar from './ProgressBar';
 import { useNavigation } from 'expo-router';
@@ -8,13 +8,16 @@ import { RootStackParamList } from '../navigation/types';
 import InputCPF from './CpfInput';
 import InputDate from './DataInput';
 import InputPhone from './PhoneInput';
+import axios from 'axios';
+import { AuthContext } from '@/contexts/Auth';
 
 
 export default function FormAddFunc() {
     const { width } = useWindowDimensions();
     const [currentStep, setCurrentStep] = useState(1);
-    const totalSteps = 3;
+    const totalSteps = 4;
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+    const authContext = useContext(AuthContext);
 
     const [nome, setNome] = useState('');
     const [sobrenome, setSobrenome] = useState('');
@@ -28,13 +31,19 @@ export default function FormAddFunc() {
     const [houseNumber, setHouseNumber] = useState('');
     const [dataNasc, setDataNasc] = useState('');
     const [cpf, setCpf] = useState('');
+    const [cidade, setCidade] = useState('');
+    const [estado, setEstado] = useState('');
+    const [pais, setPais] = useState('');
+    const [isGerente, setIsGerente] = useState(false);
+
+    const [dia, mes, ano] = dataNasc.split('/');
 
     const validateEmail = (email: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (cpf.length < 13) {
             alert('CPF invalido');
             return;
@@ -45,14 +54,43 @@ export default function FormAddFunc() {
             return;
         }
 
-        if (!nome || !sobrenome || !departamento || !funcao || !email || !phone || !neighborhood || !street || !complement || !houseNumber || !dataNasc || !cpf) {
+        if (!nome || !sobrenome || !departamento || !email || !phone || !neighborhood || !street || !complement || !houseNumber || !dataNasc || !cpf) {
             alert('Por favor, preencha todos os campos.');
             return;
         }
-        console.log(`Nome: ${nome} ${sobrenome}`)
-        console.log(`CPF: ${cpf}`)
-        console.log(`Data de Nascimento: ${dataNasc}`)
-        navigation.navigate('Funcionarios')
+
+        try {
+            const response = await axios.post('http://localhost:3000/api/register', {
+                name: nome + " " + sobrenome,
+                email: email,
+                password: nome + "*@*" + ano,
+                funcao: isGerente ? 'Gerente' : funcao,
+                cpf: cpf,
+                numero: phone,
+                departamento: isGerente ? authContext.authData?.departamento : departamento,
+                dataNascimento: dataNasc,
+                role: isGerente ? 'ADMIN' : 'USER',
+                id_empresa: authContext.authData?.id_empresa,
+            });
+
+            const responseLocation = await axios.post('http://localhost:3000/api/createEndereco', {
+                id_user: response.data.id,
+                bairro: neighborhood,
+                numero: houseNumber,
+                rua: street,
+                complemento: complement,
+                cidade: cidade,
+                estado: estado,
+                pais: pais
+            })
+
+            if(response.status === 201 && responseLocation.status === 201) {
+                navigation.navigate('Funcionarios')
+            }
+        } catch (error) {
+            console.log("Erro")
+            console.error(error.response)
+        }
     };
 
     const nextStep = () => {
@@ -76,6 +114,18 @@ export default function FormAddFunc() {
                         <InputAddFunc label="Sobrenome" value={sobrenome} setValue={setSobrenome} />
                         <InputDate label="Data Nasc." value={dataNasc} setValue={setDataNasc} />
                         <InputCPF label="CPF" value={cpf} setValue={setCpf} />
+                        {authContext.authData?.role === "MANAGER" && (
+                            <View style={styles.switchContainer}>
+                                <Text style={styles.label}>Você está cadastrando um Gerente?</Text>
+                                <Switch
+                                    value={isGerente}
+                                    onValueChange={(value) => setIsGerente(value)}
+                                    trackColor={{ false: '#D3D3D3', true: '#2C3E50' }}
+                                    thumbColor={isGerente ? '#FFF' : '#FFF'}
+                                />
+                            </View>
+                        )}
+
                     </View>
                 );
             case 2:
@@ -83,8 +133,12 @@ export default function FormAddFunc() {
                     <View style={styles.containerInputs}>
                         <InputAddFunc label="Email" value={email} setValue={setEmail} />
                         <InputPhone label="Telefone" value={phone} setValue={setPhone} />
-                        <InputAddFunc label="Departamento" value={departamento} setValue={setDepartamento} />
-                        <InputAddFunc label="Função" value={funcao} setValue={setFuncao} />
+                        {authContext.authData?.role === "MANAGER" && (
+                            <InputAddFunc label="Departamento" value={departamento} setValue={setDepartamento} />    
+                        )}
+                        {!isGerente && (
+                            <InputAddFunc label="Função" value={funcao} setValue={setFuncao} />
+                        )}
                     </View>
                 );
             case 3:
@@ -96,6 +150,14 @@ export default function FormAddFunc() {
                         <InputAddFunc label="Número" value={houseNumber} setValue={setHouseNumber} />
                     </View>
                 );
+            case 4:
+                return (
+                    <View style={styles.containerInputs}>
+                        <InputAddFunc label="Cidade" value={cidade} setValue={setCidade} />
+                        <InputAddFunc label="Estado" value={estado} setValue={setEstado} />
+                        <InputAddFunc label="Pais" value={pais} setValue={setPais} />
+                    </View>
+                );
             default:
                 return null;
         }
@@ -104,11 +166,11 @@ export default function FormAddFunc() {
     return (
         <View style={[styles.posicao, { width: width >= 768 ? width * 0.5 : width * 0.9, paddingTop:50}]}>
             <Text style={[styles.title, { fontSize: width >= 768 ? 30 : 22 }]}>Cadastro de Funcionário</Text>
-            
+
             <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
 
             {renderStep()}
-            
+
             <View style={styles.buttonContainer}>
                 {currentStep > 1 && (
                     <TouchableOpacity
@@ -166,5 +228,15 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    switchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    label: {
+        fontSize: 18,
+        color: '#2C3E50',
+        marginRight: 10,
     },
 });

@@ -14,6 +14,7 @@ const emderecoController = require('../Controllers/EnderecoController.js')
 // Rotas de login e registro
 router.post('/login', loginController.login);
 router.post('/register', userController.createUser);
+router.post('/createEndereco', emderecoController.createEndereco)
 router.get('/users', userController.getUsersByRoleAndDepartment)
 
 router.post('/endereco', emderecoController.createEndereco);
