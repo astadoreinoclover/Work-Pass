@@ -85,7 +85,7 @@ export default function FormAddFunc() {
                 funcao: isGerente ? 'Gerente' : funcao,
                 cpf: cpf,
                 numero: phone,
-                departamento: isGerente ? departamento : authContext.authData?.departamento,
+                departamento: authContext.authData?.role === "MANAGER"? departamento: isGerente ? departamento : authContext.authData?.departamento,
                 dataNascimento: dataNasc,
                 role: isGerente ? 'ADMIN' : 'USER',
                 id_empresa: authContext.authData?.id_empresa,
