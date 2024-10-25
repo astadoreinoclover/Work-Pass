@@ -7,6 +7,7 @@ import axios from 'axios';
 
 
  export interface AuthData {
+    id: number;
     token:string;
     email:string;
     name: string;

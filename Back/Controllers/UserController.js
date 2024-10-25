@@ -117,15 +117,33 @@ exports.updateUser = async (req, res) => {
 // Deletar um usuário
 exports.deleteUser = async (req, res) => {
     const { id } = req.params;
-    try {
-        await prisma.user.delete({
-            where: { id: parseInt(id) },
-        });
-        res.status(204).send();
-    } catch (error) {
-        res.status(500).json({ error: 'Erro ao deletar Usuário', details: error.message });
+
+  try {
+    await prisma.endereco.deleteMany({
+      where: { id_user: Number(id) },
+    });
+
+    const funcionarioRemovido = await prisma.user.delete({
+      where: { id: Number(id) },
+    });
+
+    return res.status(200).json({ message: 'Funcionário removido com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao remover funcionário:', error);
+
+    if (error.code === 'P2003') {
+      return res.status(400).json({
+        error: 'Erro ao remover funcionário: Existem tarefas associadas a este funcionário.',
+      });
     }
+
+    return res.status(500).json({
+      error: 'Erro interno do servidor. Tente novamente mais tarde.',
+      details: error.message,
+    });
+  }
 };
+
 
 exports.getAllUsers = async (req, res) => {
     try {
@@ -135,3 +153,42 @@ exports.getAllUsers = async (req, res) => {
         res.status(500).json({ message: 'Erro ao buscar usuários' });
     }
 };
+
+//Buscar usuarios na tela de exclusão
+exports.getfuncionariosExclusao = async (req, res) => {
+    const { departamento, id_empresa, userId, role } = req.query;
+
+    console.log('Parâmetros recebidos:', { departamento, id_empresa, userId, role });
+
+    try {
+        const roleCondition = role === "MANAGER" ? ['ADMIN', 'USER'] : ['USER'];
+
+        const departCondition = departamento === "Geral" ? undefined : [departamento];
+
+        const funcionarios = await prisma.user.findMany({
+            where: {
+                ...(departCondition ? { departamento: { in: departCondition } } : {}),
+                id_empresa: parseInt(id_empresa),
+                role: {
+                    in: roleCondition
+                }
+            },
+            orderBy: {
+                name: 'asc'
+            }
+        });
+
+        const funcionariosFiltrados = funcionarios.filter(funcionario => funcionario.id !== parseInt(userId, 10));
+
+        if (funcionariosFiltrados.length === 0) {
+            return res.status(404).json({ message: 'Nenhum funcionário encontrado' });
+        }
+
+        return res.status(200).json(funcionariosFiltrados);
+    } catch (error) {
+        console.error('Erro ao buscar funcionários:', error);
+        return res.status(500).json({ error: 'Erro ao buscar funcionários' });
+    }
+};
+
+

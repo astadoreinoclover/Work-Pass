@@ -17,7 +17,11 @@ router.post('/register', userController.createUser);
 router.post('/createEndereco', emderecoController.createEndereco)
 router.get('/users', userController.getUsersByRoleAndDepartment)
 
+router.get('/funcionariosExclussao', userController.getfuncionariosExclusao)
+
 router.post('/endereco', emderecoController.createEndereco);
+
+router.delete('/funcionariosDelete/:id', userController.deleteUser)
 
 // Exemplo de rota protegida (requer token JWT)
 router.get('/protected', authMiddleware, (req, res) => {

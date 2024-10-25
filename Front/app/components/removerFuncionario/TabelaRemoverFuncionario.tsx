@@ -4,61 +4,94 @@ import { AuthContext } from '@/contexts/Auth';
 import { FuncionariosContext } from '@/contexts/FuncionariosContext';
 import { NavigationProp, useNavigation } from '@react-navigation/native'; 
 import { RootStackParamList } from '../navigation/types';
-import { getFuncionariosRemove } from '@/services/FuncionariosService';
+import axios from 'axios';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 type Funcionarios = {
   id: number;
   name: string;
   funcao: string;
-  department: string;
+  departamento: string;
 };
 
 export default function TabelaRemoverFuncionario() {
   const { width, height } = useWindowDimensions();
-  const [email, setEmail] = useState<string | null>(null);
-  const [name, setName] = useState<string | null>(null);
   const [nameFilter, setNameFilter] = useState<string>('');
   const [funcionarios, setFuncionarios] = useState<Funcionarios[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const { filterFunc } = useContext(FuncionariosContext);
   const authContext = useContext(AuthContext);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [departamento, setDepartamento] = useState<string | null>(null);
+  const [empresa, setEmpresa] = useState<number | undefined>(undefined);
+  const [role, setRole] = useState<string | null>(null);
+  const [userId, setUserId] = useState<number | undefined>(undefined);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
 
   useEffect(() => {
-    setEmail(authContext.authData?.email || null);
-    setName(authContext.authData?.name || null);
+    setRole(authContext.authData?.role || null);
+    setEmpresa(authContext.authData?.id_empresa);
+    setDepartamento(authContext.authData?.departamento || null);
+    setUserId(authContext.authData?.id);
   }, [authContext.authData]);
 
   useEffect(() => {
     const fetchFuncionarios = async () => {
+      if (!userId || !role || !empresa) {
+        return;
+      }
       setLoading(true);
+      setError(null);
       try {
-        const data = await getFuncionariosRemove(authContext.authData?.departament || 'Geral');
-        setFuncionarios(data);
+        const response = await axios.get(`http://localhost:3000/api/funcionariosExclussao`, {
+          params: {
+            departamento: departamento || '',
+            id_empresa: empresa,
+            userId,
+            role,
+          },
+        });
+        setFuncionarios(response.data);
       } catch (error) {
         console.error('Erro ao buscar funcionários:', error);
+        setError('Erro ao buscar funcionários. Tente novamente mais tarde.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchFuncionarios();
-  }, [filterFunc]);
+  }, [userId, role, empresa, departamento, filterFunc]);
 
-  const removeFuncionario = (id: number) => {
-    navigation.navigate('Funcionarios')
+  const confirmRemoval = (id: number) => {
+    setConfirmDeleteId(id);
+  };
+
+  const handleDelete = async () => {
+    if (confirmDeleteId !== null) {
+      try {
+        await axios.delete(`http://localhost:3000/api/funcionariosDelete/${confirmDeleteId}`);
+        setFuncionarios(prev => prev.filter(funcionario => funcionario.id !== confirmDeleteId));
+        setConfirmDeleteId(null);
+      } catch (error) {
+        console.error('Erro ao remover funcionário:', error);
+        setError('Erro ao remover funcionário. Tente novamente mais tarde.');
+      }
+    }
   };
 
   const renderFuncionarios = ({ item }: { item: Funcionarios }) => (
     <View style={styles.row}>
       <TouchableOpacity 
         style={styles.cell} 
-        onPress={() => navigation.navigate('Funcionario', { itemName: item.name, itemDepartament: item.department, itemId: item.id })}
+        onPress={() => navigation.navigate('Funcionario', { itemName: item.name, itemDepartament: item.departamento, itemId: item.id })}
       >
         <Text style={{ color: '#2C3E50', fontWeight: '700', marginHorizontal: 'auto' }}>{item.name}</Text>
       </TouchableOpacity>
       <Text style={styles.cell}>{item.funcao}</Text>
-      <TouchableOpacity style={styles.removeButton} onPress={() => removeFuncionario(item.id)}>
+      <Text style={styles.cell}>{item.departamento}</Text>
+      <TouchableOpacity style={styles.removeButton} onPress={() => confirmRemoval(item.id)}>
         <Text style={styles.removeText}>Remover</Text>
       </TouchableOpacity>
     </View>
@@ -72,12 +105,14 @@ export default function TabelaRemoverFuncionario() {
         value={nameFilter}
         onChangeText={setNameFilter}
       />
+      {error && <Text style={styles.errorText}>{error}</Text>}
       <View style={styles.tableHeader}>
         <Text style={[styles.headerCell, { fontSize: width >= 768 ? 12 : 10 }]}>Nome</Text>
         <Text style={[styles.headerCell, { fontSize: width >= 768 ? 12 : 10 }]}>Função</Text>
+        <Text style={[styles.headerCell, { fontSize: width >= 768 ? 12 : 10 }]}>Departamento</Text>
         <Text style={[styles.headerCell, { fontSize: width >= 768 ? 12 : 10 }]}>Remover</Text>
       </View>
-      
+
       {loading ? (
         <ActivityIndicator size="large" color="#2C3E50" />
       ) : (
@@ -88,6 +123,22 @@ export default function TabelaRemoverFuncionario() {
           showsVerticalScrollIndicator={false}
         />
       )}
+
+      {/* AwesomeAlert para confirmação de exclusão */}
+      <AwesomeAlert
+        show={confirmDeleteId !== null}
+        title="Confirmação de Exclusão"
+        message="Você tem certeza que deseja remover este funcionário?"
+        closeOnTouchOutside={false}
+        closeOnHardwareBackPress={false}
+        showCancelButton={true}
+        showConfirmButton={true}
+        confirmText="Remover"
+        cancelText="Cancelar"
+        confirmButtonColor="#f00"
+        onCancelPressed={() => setConfirmDeleteId(null)}
+        onConfirmPressed={handleDelete}
+      />
     </View>
   );
 }
@@ -108,6 +159,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+  errorText: {
+    color: 'red',
     marginBottom: 10,
   },
   row: {

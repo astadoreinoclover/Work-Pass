@@ -10,7 +10,7 @@ import InputDate from './DataInput';
 import InputPhone from './PhoneInput';
 import axios from 'axios';
 import { AuthContext } from '@/contexts/Auth';
-
+import AwesomeAlert from 'react-native-awesome-alerts';  
 
 export default function FormAddFunc() {
     const { width } = useWindowDimensions();
@@ -36,6 +36,9 @@ export default function FormAddFunc() {
     const [pais, setPais] = useState('');
     const [isGerente, setIsGerente] = useState(false);
 
+    const [showAlert, setShowAlert] = useState(false); // Estado para controlar o alerta
+    const [alertMessage, setAlertMessage] = useState(''); // Mensagem do alerta
+
     const [dia, mes, ano] = dataNasc.split('/');
 
     const validateEmail = (email: string) => {
@@ -45,17 +48,32 @@ export default function FormAddFunc() {
 
     const handleSubmit = async () => {
         if (cpf.length < 13) {
-            alert('CPF invalido');
+            setAlertMessage('CPF inválido');
+            setShowAlert(true);
+            return;
+        }
+
+        if(phone.length < 15) {
+            setAlertMessage('Número inválido');
+            setShowAlert(true);
+            return;
+        }
+
+        if(dataNasc.length < 10) {
+            setAlertMessage('Data inválida');
+            setShowAlert(true);
             return;
         }
 
         if (!validateEmail(email)) {
-            alert('Email invalido');
+            setAlertMessage('E-mail inválido');
+            setShowAlert(true);
             return;
         }
 
-        if (!nome || !sobrenome || !departamento || !email || !phone || !neighborhood || !street || !complement || !houseNumber || !dataNasc || !cpf) {
-            alert('Por favor, preencha todos os campos.');
+        if (!nome || !sobrenome || !email || !phone || !neighborhood || !street || !complement || !houseNumber || !dataNasc || !cpf) {
+            setAlertMessage('Por favor, preencha todos os campos.');
+            setShowAlert(true);
             return;
         }
 
@@ -67,7 +85,7 @@ export default function FormAddFunc() {
                 funcao: isGerente ? 'Gerente' : funcao,
                 cpf: cpf,
                 numero: phone,
-                departamento: isGerente ? authContext.authData?.departamento : departamento,
+                departamento: isGerente ? departamento : authContext.authData?.departamento,
                 dataNascimento: dataNasc,
                 role: isGerente ? 'ADMIN' : 'USER',
                 id_empresa: authContext.authData?.id_empresa,
@@ -85,11 +103,11 @@ export default function FormAddFunc() {
             })
 
             if(response.status === 201 && responseLocation.status === 201) {
-                navigation.navigate('Funcionarios')
+                navigation.navigate('Funcionarios');
             }
         } catch (error) {
-            console.log("Erro")
-            console.error(error.response)
+            setAlertMessage(error.response?.data?.error || 'Erro ao criar usuário');
+            setShowAlert(true);
         }
     };
 
@@ -134,7 +152,7 @@ export default function FormAddFunc() {
                         <InputAddFunc label="Email" value={email} setValue={setEmail} />
                         <InputPhone label="Telefone" value={phone} setValue={setPhone} />
                         {authContext.authData?.role === "MANAGER" && (
-                            <InputAddFunc label="Departamento" value={departamento} setValue={setDepartamento} />    
+                            <InputAddFunc label="Departamento" value={departamento} setValue={setDepartamento} />
                         )}
                         {!isGerente && (
                             <InputAddFunc label="Função" value={funcao} setValue={setFuncao} />
@@ -189,6 +207,35 @@ export default function FormAddFunc() {
                     </TouchableOpacity>
                 </View>
             </View>
+
+            {/* Componente de Alerta */}
+            <AwesomeAlert
+                show={showAlert}
+                showProgress={false}
+                title="Erro"
+                message={alertMessage}
+                closeOnTouchOutside={true}
+                closeOnHardwareBackPress={false}
+                showConfirmButton={true}
+                confirmText="Ok"
+                confirmButtonColor="#DD6B55"
+                onConfirmPressed={() => {
+                    setShowAlert(false);
+                }}
+                contentContainerStyle={{
+                    width: '70%',
+                    padding: 20,
+                    borderRadius: 10,
+                }}
+                titleStyle={{
+                    fontSize: 24,
+                    fontWeight: 'bold',
+                }}
+                messageStyle={{
+                    fontSize: 18,
+                    textAlign: 'center',
+                }}
+            />
         </View>
     );
 }
