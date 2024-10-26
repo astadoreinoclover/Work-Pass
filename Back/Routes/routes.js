@@ -23,6 +23,8 @@ router.post('/endereco', emderecoController.createEndereco);
 
 router.delete('/funcionariosDelete/:id', userController.deleteUser)
 
+router.put('/trocaSenha/:id', userController.updateSenha)
+
 // Exemplo de rota protegida (requer token JWT)
 router.get('/protected', authMiddleware, (req, res) => {
     res.json({ message: 'Acesso permitido', user: req.user });

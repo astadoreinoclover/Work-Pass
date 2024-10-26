@@ -191,4 +191,28 @@ exports.getfuncionariosExclusao = async (req, res) => {
     }
 };
 
+// Troca de senha
+exports.updateSenha = async (req, res) => {
+    const { id } = req.params;
+    const {  senha, novaSenha } = req.body;
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(novaSenha)) {
+        return res.status(400).json({
+            error: 'A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número, um caractere especial e ter no mínimo 8 caracteres.'
+        });
+    }
+
+    try {
+        const updatedUser = await prisma.user.update({
+            where: { id: parseInt(id) },
+            data: {
+                password: novaSenha
+            },
+        });
+        res.json(updatedUser);
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao atualizar Usuário', details: error.message });
+    }
+};
 

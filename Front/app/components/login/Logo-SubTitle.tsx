@@ -1,12 +1,16 @@
 import React from 'react';
-import { View, Text, useWindowDimensions, StyleSheet } from 'react-native';
+import { View, Text, useWindowDimensions, StyleSheet, Image } from 'react-native';
 
 const LogoSubTitle = () => {
     const { width } = useWindowDimensions();
     return (
         <View style={[styles.logoContainer, {marginBottom: width>=768 ? 40:10, flex: width >= 768 ? 2:1, marginTop:10}]}>
         <View style={styles.logo}>
-          <Text style={styles.logoText}>Logo</Text>
+        <Image
+          source={ require('../../assets/images/Logo.png')}
+          style={{ width: width>=768? 350:200, height: width>=768?175:100 }}
+          resizeMode="contain" 
+        />
         </View>
         <Text style={[styles.welcomeText, {fontSize: width >= 768 ? 35:20, textAlign: width >= 768 ? 'center': 'left'}]}>Transforme a cultura da sua empresa com a maior plataforma de endomarketing e gamificação para empresas.</Text>
       </View>
@@ -26,10 +30,8 @@ const styles = StyleSheet.create({
       // flex: 2,
     },
     logo: {
-      backgroundColor: '#8A79AF', // Roxo Lavanda
-      padding: 20,
+      padding: 5,
       borderRadius: 20,
-      marginBottom: 20,
     },
     logoText: {
       fontSize: 24,
@@ -40,7 +42,6 @@ const styles = StyleSheet.create({
       color: '#FFFFFF', // Texto branco
       fontSize: 35,
       textAlign: 'center',
-      paddingHorizontal: 20,
     }
 });
 

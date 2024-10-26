@@ -12,14 +12,14 @@ import { AuthContext } from '@/contexts/Auth';
 export default function FormEditarDados() {
     const { width } = useWindowDimensions();
     const authContext = useContext(AuthContext);
-    
+
     const [email, setEmail] = useState<string | null>(null);
     const [phone, setPhone] = useState<string | null>(null);
     const [neighborhood, setNeighborhood] = useState('');
     const [street, setStreet] = useState('');
     const [complement, setComplement] = useState('');
     const [houseNumber, setHouseNumber] = useState('');
-    const [error, setError] = useState<string | null>(null); // Estado para mensagens de erro
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         setEmail(authContext.authData?.email || '');
@@ -31,8 +31,8 @@ export default function FormEditarDados() {
             setError('Por favor, preencha todos os campos obrigatórios.');
             return;
         }
-        
-        setError(null); // Limpar erros
+
+        setError(null);
         console.log({
             email,
             phone,
