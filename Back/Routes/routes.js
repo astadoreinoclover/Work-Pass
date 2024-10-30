@@ -25,6 +25,8 @@ router.delete('/funcionariosDelete/:id', userController.deleteUser)
 
 router.put('/trocaSenha/:id', userController.updateSenha)
 
+router.get('/user/:id', userController.getUserById)
+
 // Exemplo de rota protegida (requer token JWT)
 router.get('/protected', authMiddleware, (req, res) => {
     res.json({ message: 'Acesso permitido', user: req.user });
@@ -65,7 +67,7 @@ router.delete('/habilidades/:id', habilidadeController.deleteHabilidade);
 
 // Rotas para Gaming
 router.post('/gaming', gamingController.createGaming);
-router.get('/gaming/:id', gamingController.getGamingById);
+router.get('/gaming/:user_id', gamingController.getGamingById);
 router.put('/gaming/:id', gamingController.updateGaming);
 router.delete('/gaming/:id', gamingController.deleteGaming);
 

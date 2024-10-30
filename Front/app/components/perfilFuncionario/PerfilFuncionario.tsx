@@ -6,7 +6,8 @@ import { useRoute } from '@react-navigation/native';
 import { getFuncionario } from '@/services/FuncionarioService';
 import HabilidadeCard from './HabilidadeCard';
 import Nivel from './Nivel';
-import { RouteParams, Funcionario } from './Types';
+import { RouteParams, Funcionario, Gaming } from './Types';
+import axios from 'axios';
 
 const FuncionarioProfile: React.FC = () => {
     const { width, height } = useWindowDimensions();
@@ -14,26 +15,29 @@ const FuncionarioProfile: React.FC = () => {
     const widthCards = width >= 768 ? width * 0.25 : width * 0.8;
     const authContext = useContext(AuthContext);
     const [funcionario, setFuncionario] = useState<Funcionario | null>(null);
+    const [gaming, setGaming] = useState<Gaming | null>(null);
 
     const route = useRoute();
     const { itemName, itemDepartament, itemId } = route.params as RouteParams;
-    const dataFormatada = funcionario?.dataNasc
-    ? new Date(funcionario.dataNasc).toLocaleDateString('pt-BR')
-    : 'Data não disponível';
 
     useEffect(() => {
         const fetchFuncionario = async () => {
             try {
-                const data = await getFuncionario(itemDepartament, itemName, itemId);
+                const response = await axios.get(`http://localhost:3000/api/user/${itemId}`);
+                const data = response.data;
                 console.log('Dados do funcionário recebidos:', data);
-                setFuncionario(data.length > 0 ? data[0] : null);
+                setFuncionario(data);
+                const responseGame = await axios.get(`http://localhost:3000/api/gaming/${itemId}`);
+                const dataGame = responseGame.data;
+                console.log('Dados do funcionário recebidos:', dataGame);
+                setGaming(dataGame[0]);
             } catch (error) {
                 console.error('Erro ao buscar funcionário:', error);
             }
         };
 
         fetchFuncionario();
-    }, [itemDepartament, itemName, itemId]);
+    }, [ itemId]);
 
     if (!funcionario) {
         return (
@@ -46,7 +50,7 @@ const FuncionarioProfile: React.FC = () => {
     return (
         <ScrollView>
             <View style={{ height: height * 0.75, width: width * 0.95, paddingBottom: 20 }}>
-                <Nivel funcionario={funcionario}/>
+                {gaming ? <Nivel funcionario={gaming} /> : null}
                 <View style={[styles.headerContainer, { flexDirection: width >=768?'row': 'column', width:width*0.9, justifyContent:width>=768?'space-around':'center', alignItems:width>=768?'baseline':'center'}]}>
                     <View style={{flexDirection: width >=768?'row': 'column'}}>
                        <Text style={{ fontWeight: 'bold', color: '#2C3E50', fontSize: 20, marginRight:10 }}>Habilidades:</Text>
@@ -58,19 +62,19 @@ const FuncionarioProfile: React.FC = () => {
                             />
                         ))} 
                     </View>
-                    <Text style={{fontWeight: 'bold', color: '#2C3E50', fontSize:20}}>Nivel: {funcionario.nivel}</Text>
+                    <Text style={{fontWeight: 'bold', color: '#2C3E50', fontSize:20}}>Nivel: {gaming ? gaming.nivel : 'N/A'}</Text>
                 </View>
                 <View style={[styles.container, { flexDirection: width >= 768 ? 'row' : 'column' }]}>
                     <View style={[styles.areaItem, { height: heigthCards, width: widthCards }]}>
                         <ItemPerfilComponent title="Nome Completo" content={funcionario.name} />
-                        <ItemPerfilComponent title="Data de Nascimento" content={dataFormatada} />
+                        <ItemPerfilComponent title="Data de Nascimento" content={funcionario.dataNascimento} />
                     </View>
                     <View style={[styles.areaItem, { height: heigthCards, width: widthCards }]}>
                         <ItemPerfilComponent title="Email" content={funcionario.email} />
                         <ItemPerfilComponent title="Número" content={funcionario.numero} />
                     </View>
                     <View style={[styles.areaItem, { height: heigthCards, width: widthCards }]}>
-                        <ItemPerfilComponent title="Departamento" content={funcionario.department} />
+                        <ItemPerfilComponent title="Departamento" content={funcionario.departamento} />
                         <ItemPerfilComponent title="Função" content={funcionario.funcao} />
                     </View>
                 </View>

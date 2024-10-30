@@ -3,14 +3,13 @@ const prisma = new PrismaClient();
 
 // Criar uma nova Gaming
 exports.createGaming = async (req, res) => {
-    const { id_user, pontuacao, nivel, tempoJogos } = req.body;
+    const { user_id, nivel, xp } = req.body;
     try {
         const newGaming = await prisma.gaming.create({
             data: {
-                id_user,
-                pontuacao,
+                xp,
                 nivel,
-                tempoJogos,
+                user_id
             },
         });
         res.status(201).json(newGaming);
@@ -21,17 +20,33 @@ exports.createGaming = async (req, res) => {
 
 // Obter Gaming por ID
 exports.getGamingById = async (req, res) => {
-    const { id } = req.params;
+    const { user_id } = req.params;
+
+    // Verifica se o user_id está definido
+    if (!user_id) {
+        return res.status(400).json({ error: "user_id não fornecido" });
+    }
+
     try {
-        const gaming = await prisma.gaming.findUnique({
-            where: { id: parseInt(id) },
+        const gamings = await prisma.gaming.findMany({
+            where: {
+                user_id: {
+                    equals: parseInt(user_id), // Aqui é como você busca por um user_id específico
+                },
+            },
         });
-        if (!gaming) return res.status(404).json({ error: 'Gaming não encontrado' });
-        res.json(gaming);
+
+        // Verifica se algum registro foi encontrado
+        if (gamings.length === 0) {
+            return res.status(404).json({ error: "Gaming não encontrado" });
+        }
+
+        return res.json(gamings);
     } catch (error) {
-        res.status(500).json({ error: 'Erro ao buscar Gaming', details: error.message });
+        return res.status(500).json({ error: "Erro ao buscar Gaming", details: error.message });
     }
 };
+
 
 // Atualizar uma Gaming
 exports.updateGaming = async (req, res) => {

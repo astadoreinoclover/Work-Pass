@@ -9,16 +9,21 @@ export type Habilidade = {
     nivel: number;
 };
 
+export type Gaming = {
+    xp: number;
+    xpNecessarioParaSubirNivel: number;
+    nivel: number
+}
+
 export type Funcionario = {
     habilidades?: Habilidade[];
     id: number;
     name: string;
-    department: string;
+    departamento: string;
     funcao: string;
     numero: string;
-    dataNasc: string;
+    dataNascimento: string;
     email: string;
-    xp: number;
-    xpNescessario: number;
-    nivel: number;
+    gaming?:Gaming[]
 };
+

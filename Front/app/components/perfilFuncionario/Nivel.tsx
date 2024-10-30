@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 
 type Funcionario = {
     xp: number;
-    xpNescessario: number;
+    xpNecessarioParaSubirNivel: number;
 };
-  
+
 type NivelHabilidadeProps = {
     funcionario: Funcionario;
 };
@@ -33,9 +33,9 @@ const Nivel: React.FC<NivelHabilidadeProps> = ({ funcionario }) => {
       </View>
       <View style={[styles.progressBarContainer, { width: width >= 768 ? width * 0.6 : width * 0.7 }]}>
         <View style={styles.progressBar}>
-          <View style={[styles.progress, { width: `${(funcionario.xp / funcionario.xpNescessario) * 100}%` }]} />
+          <View style={[styles.progress, { width: `${(funcionario.xp / funcionario.xpNecessarioParaSubirNivel) * 100}%` }]} />
         </View>
-        <Text style={{ marginLeft: 20 }}>{funcionario.xp}/{funcionario.xpNescessario}</Text>
+        <Text style={{ marginLeft: 20 }}>{funcionario.xp}/{funcionario.xpNecessarioParaSubirNivel}</Text>
       </View>
     </View>
   );

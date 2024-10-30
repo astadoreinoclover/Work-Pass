@@ -34,7 +34,7 @@ model User {
   empresa   Empresa  @relation(fields: [id_empresa], references: [id])
   enderecos Endereco[]
   logs      Log[]
-  gaming    Gaming?
+  gaming    Gaming[]
   tasks     UserTask[]
   carreira  PlanoDeCarreira?
   habilidades HabilidadeUser[]
