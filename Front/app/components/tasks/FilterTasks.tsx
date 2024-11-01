@@ -4,7 +4,7 @@ import { TaskContext } from '@/contexts/TaskContaxt';
 
 export default function FilterTasks() {
   const { width } = useWindowDimensions();
-  const [selectedstatus, setSelectedstatus] = useState<string>('Em Desenvolvimento');
+  const [selectedstatus, setSelectedstatus] = useState<string>('EM_ANDAMENTO');
   const { setFilterTask} = useContext(TaskContext);
 
   useEffect(() => {
@@ -13,14 +13,14 @@ export default function FilterTasks() {
 
   return (
     <View style={[styles.container, {width: width >=768? width*0.6:width*0.9}]}>
-        <TouchableOpacity style={styles.button} onPress={()=>{setSelectedstatus('Não Entregue')}}>
-            <Text style={[styles.text, {fontSize: width>=768? 18:12, color: selectedstatus == 'Não Entregue'?'#fff':'#999'}]}>Não Entregue</Text>
+        <TouchableOpacity style={styles.button} onPress={()=>{setSelectedstatus('NAO_ENTREGUE')}}>
+            <Text style={[styles.text, {fontSize: width>=768? 18:12, color: selectedstatus == 'NAO_ENTREGUE'?'#fff':'#999'}]}>Não Entregue</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={()=>{setSelectedstatus('Em Desenvolvimento')}}>
-            <Text style={[styles.text, {fontSize: width>=768? 18:12, color: selectedstatus == 'Em Desenvolvimento'?'#fff':'#999'}]}>Em Desenvolvimento</Text>
+        <TouchableOpacity style={styles.button} onPress={()=>{setSelectedstatus('EM_ANDAMENTO')}}>
+            <Text style={[styles.text, {fontSize: width>=768? 18:12, color: selectedstatus == 'EM_ANDAMENTO'?'#fff':'#999'}]}>Em Desenvolvimento</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={()=>{setSelectedstatus('Entregue')}}>
-            <Text style={[styles.text, {fontSize: width>=768? 18:12, color: selectedstatus == 'Entregue'?'#fff':'#999'}]}>Entregues</Text>
+        <TouchableOpacity style={styles.button} onPress={()=>{setSelectedstatus('CONCLUIDA')}}>
+            <Text style={[styles.text, {fontSize: width>=768? 18:12, color: selectedstatus == 'CONCLUIDA'?'#fff':'#999'}]}>Entregues</Text>
         </TouchableOpacity>
     </View>
   );
