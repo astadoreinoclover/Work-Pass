@@ -16,9 +16,6 @@ export default function Rankings() {
     setEmail(authContext.authData?.email || null);
     setName(authContext.authData?.name || null)
   }, [authContext.authData]);
-  
-  
-  console.log(authContext.authData?.token);
   return (
     <View style={styles.container}>
       <View style={{position: 'absolute', top:0}}><BarSuperior /></View>

@@ -70,8 +70,7 @@ model Task {
   descricao   String
   valorEntrega Int
   habilidadeId Int
-  tipoEntrega String
-  dataFinal   DateTime
+  dataFinal   String
   usersTasks  UserTask[]
 }
 

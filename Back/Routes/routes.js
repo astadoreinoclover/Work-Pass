@@ -15,9 +15,9 @@ const emderecoController = require('../Controllers/EnderecoController.js')
 router.post('/login', loginController.login);
 router.post('/register', userController.createUser);
 router.post('/createEndereco', emderecoController.createEndereco)
-router.get('/users', userController.getUsersByRoleAndDepartment)
+router.post('/users', userController.getUsersByRoleAndDepartment)
 
-router.get('/funcionariosExclussao', userController.getfuncionariosExclusao)
+router.get('/funcionariosExclussao', authMiddleware, userController.getfuncionariosExclusao)
 
 router.post('/endereco', emderecoController.createEndereco);
 
@@ -52,6 +52,8 @@ router.get('/task/:id', authMiddleware, taskController.getTaskById);
 router.post('/task', taskController.createTask);
 router.put('/task/:id', authMiddleware, taskController.updateTask);
 router.delete('/task/:id', authMiddleware, taskController.deleteTask);
+router.post('/taskUser', taskController.createTaskUser);
+router.delete('/taskUser/:id', authMiddleware, taskController.deleteAllTasksByUserId);
 
 // Rotas para Carreira
 router.post('/carreiras', carreiraController.createCarreira);
@@ -64,6 +66,7 @@ router.post('/habilidades', habilidadeController.createHabilidade);
 router.get('/habilidades/:id', habilidadeController.getHabilidadeById);
 router.put('/habilidades/:id', habilidadeController.updateHabilidade);
 router.delete('/habilidades/:id', habilidadeController.deleteHabilidade);
+router.get('/habilidades', habilidadeController.getHabilidade);
 
 // Rotas para Gaming
 router.post('/gaming', gamingController.createGaming);

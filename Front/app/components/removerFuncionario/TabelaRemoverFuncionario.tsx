@@ -45,6 +45,10 @@ export default function TabelaRemoverFuncionario() {
       setError(null);
       try {
         const response = await axios.get(`http://localhost:3000/api/funcionariosExclussao`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authContext.authData?.token}`
+        },
           params: {
             departamento: departamento || '',
             id_empresa: empresa,

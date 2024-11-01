@@ -3,12 +3,12 @@ const prisma = new PrismaClient();
 
 // Criar uma nova Gaming
 exports.createGaming = async (req, res) => {
-    const { user_id, nivel, xp } = req.body;
+    const { user_id } = req.body;
     try {
         const newGaming = await prisma.gaming.create({
             data: {
-                xp,
-                nivel,
+                xp: 0,
+                nivel: 1,
                 user_id
             },
         });

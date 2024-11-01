@@ -123,6 +123,14 @@ exports.deleteUser = async (req, res) => {
       where: { id_user: Number(id) },
     });
 
+    await prisma.userTask.deleteMany({
+        where: { user_id: Number(id) },
+    });
+
+    await prisma.gaming.deleteMany({
+        where: { user_id: Number(id) },
+    });
+
     const funcionarioRemovido = await prisma.user.delete({
       where: { id: Number(id) },
     });

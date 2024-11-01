@@ -3,7 +3,13 @@ const prisma = new PrismaClient();
 
 // Criar uma nova Task
 exports.createTask = async (req, res) => {
-    const { titulo, descricao, valorEntrega, habilidadeId, tipoEntrega, dataFinal } = req.body;
+    const { titulo, descricao, valorEntrega, habilidadeId, dataFinal } = req.body;
+
+    if(!titulo || !descricao || !valorEntrega || !habilidadeId || !dataFinal) {
+        res.status(500).json({ error: 'Preencha todos os campos'});
+        return
+    }
+
     try {
         const newTask = await prisma.task.create({
             data: {
@@ -11,8 +17,7 @@ exports.createTask = async (req, res) => {
                 descricao,
                 valorEntrega,
                 habilidadeId,
-                tipoEntrega,
-                dataFinal: new Date(dataFinal),
+                dataFinal: dataFinal
             },
         });
         res.status(201).json(newTask);
@@ -67,5 +72,40 @@ exports.deleteTask = async (req, res) => {
         res.status(204).send();
     } catch (error) {
         res.status(500).json({ error: 'Erro ao deletar Task', details: error.message });
+    }
+};
+
+exports.createTaskUser = async (req, res) => {
+    const { task_id, user_id } = req.body;
+    try {
+        const newTask = await prisma.userTask.create({
+            data: {
+                user_id: user_id,
+                task_id: task_id,
+                status: 'EM_ANDAMENTO'
+            },
+        });
+        res.status(201).json(newTask);
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao criar Task', details: error.message });
+    }
+};
+
+exports.deleteAllTasksByUserId = async (req, res) => {
+    const { user_id } = req.params; // O ID do usuário será passado como parâmetro da URL
+    try {
+        const deletedTasks = await prisma.userTask.deleteMany({
+            where: {
+                user_id: user_id, // Filtra as tarefas do usuário específico
+            },
+        });
+
+        if (deletedTasks.count === 0) {
+            return res.status(404).json({ message: 'Nenhuma tarefa encontrada para este usuário.' });
+        }
+
+        res.status(200).json({ message: 'Todas as tarefas do usuário foram excluídas com sucesso.', deletedCount: deletedTasks.count });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao excluir as tarefas', details: error.message });
     }
 };

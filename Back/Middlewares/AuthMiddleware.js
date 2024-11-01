@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const SECRET_KEY = 'token'; // A mesma chave usada para gerar o token
+const SECRET_KEY = 'seuSegredoAqui'; // A mesma chave usada para gerar o token
 
 const authenticateToken = (req, res, next) => {
     const token = req.header('Authorization')?.split(' ')[1]; // Pega o token do header da requisição

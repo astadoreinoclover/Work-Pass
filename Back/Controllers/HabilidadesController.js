@@ -3,13 +3,11 @@ const prisma = new PrismaClient();
 
 // Criar uma nova Habilidade
 exports.createHabilidade = async (req, res) => {
-    const { id_user, nome, nivel } = req.body;
+    const {  nome } = req.body;
     try {
         const newHabilidade = await prisma.habilidade.create({
             data: {
-                id_user,
-                nome,
-                nivel,
+                nome
             },
         });
         res.status(201).json(newHabilidade);
@@ -60,5 +58,17 @@ exports.deleteHabilidade = async (req, res) => {
         res.status(204).send();
     } catch (error) {
         res.status(500).json({ error: 'Erro ao deletar Habilidade', details: error.message });
+    }
+};
+
+exports.getHabilidade = async (req, res) => {
+    try {
+        const habilidades = await prisma.habilidade.findMany();
+        if (!habilidades || habilidades.length === 0) {
+            return res.status(404).json({ error: 'Habilidades não encontradas' });
+        }
+        res.json(habilidades);
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao buscar habilidades', details: error.message });
     }
 };

@@ -102,7 +102,11 @@ export default function FormAddFunc() {
                 pais: pais
             })
 
-            if(response.status === 201 && responseLocation.status === 201) {
+            const responseGaming = await axios.post('http://localhost:3000/api/gaming', {
+                user_id: response.data.id
+            })
+
+            if(response.status === 201 && responseLocation.status === 201 && responseGaming.status ===201) {
                 navigation.navigate('Funcionarios');
             }
         } catch (error) {
