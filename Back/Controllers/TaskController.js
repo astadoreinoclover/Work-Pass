@@ -133,33 +133,17 @@ exports.getTaskDetailsByStatusAndDepartment = async (req, res) => {
             }
         });
 
-        // Aqui estamos coletando os IDs das Tasks, não das UserTasks
-        const taskIds = users.flatMap(user => user.tasks.map(userTask => userTask.task.id));
-
-        if (taskIds.length === 0) {
-            return res.status(200).json([]);
-        }
-
-        // Buscando detalhes das tarefas usando os IDs coletados
-        const tasksDetails = await prisma.task.findMany({
-            where: {
-                id: { in: taskIds }
-            }
-        });
-
-        // Montando a resposta com os detalhes das tarefas e o nome do funcionário
-        const tasksResponse = tasksDetails.map(task => {
-            // Encontrar o usuário associado à tarefa
-            const funcionario = users.find(user => user.tasks.some(userTask => userTask.task.id === task.id));
-            return {
-                funcionario: funcionario ? funcionario.name : 'Desconhecido', // Se não encontrar o funcionário, retorna 'Desconhecido'
-                id_task: task.id,
-                titulo: task.titulo,
-                descricao: task.descricao,
-                fechamento: task.dataFinal,
-                pts: task.valorEntrega
-            };
-        });
+        // Montando a resposta com os detalhes das tarefas e o nome do funcionário para cada associação
+        const tasksResponse = users.flatMap(user => 
+            user.tasks.map(userTask => ({
+                funcionario: user.name,
+                id_task: userTask.id,
+                titulo: userTask.task.titulo,
+                descricao: userTask.task.descricao,
+                fechamento: userTask.task.dataFinal,
+                pts: userTask.task.valorEntrega
+            }))
+        );
 
         res.status(200).json(tasksResponse);
     } catch (error) {
@@ -167,4 +151,6 @@ exports.getTaskDetailsByStatusAndDepartment = async (req, res) => {
         res.status(500).json({ error: 'Erro ao buscar tarefas', details: error.message });
     }
 };
+
+
 
