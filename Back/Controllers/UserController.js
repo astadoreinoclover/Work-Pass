@@ -224,3 +224,56 @@ exports.updateSenha = async (req, res) => {
     }
 };
 
+exports.getTaskCountByEmployee = async (req, res) => {
+    const { departamento, id_empresa } = req.query;
+
+    try {
+      // Filtro base para empresa e role de usuário
+      const baseFilter = {
+        role: 'USER',
+        id_empresa: Number(id_empresa),
+        ...(departamento !== 'Geral' && { departamento }), // Condicional para departamento se não for "Geral"
+      };
+
+      // Buscar usuários e contar tasks de acordo com o status
+      const usersTasksCount = await prisma.user.findMany({
+        where: baseFilter,
+        select: {
+          id: true,
+          name: true,
+          departamento: true,
+          tasks: {
+            select: {
+              status: true,
+            },
+          },
+        },
+      });
+
+      // Formatar a resposta com a contagem por status para cada usuário
+      const taskCounts = usersTasksCount.map((user) => {
+        const counts = {
+          EM_ANDAMENTO: 0,
+          CONCLUIDA: 0,
+          NAO_ENTREGUE: 0,
+        };
+
+        user.tasks.forEach((task) => {
+          counts[task.status]++;
+        });
+
+        return {
+          userId: user.id,
+          userName: user.name,
+          userDepartament: user.departamento,
+          taskCounts: counts,
+        };
+      });
+
+      res.status(200).json({ taskCounts });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Erro ao buscar contagem de tasks por funcionário.' });
+    }
+};
+

@@ -27,6 +27,9 @@ router.put('/trocaSenha/:id', userController.updateSenha)
 
 router.get('/user/:id', userController.getUserById)
 
+router.get('/countStatus', userController.getTaskCountByEmployee)
+
+
 // Exemplo de rota protegida (requer token JWT)
 router.get('/protected', authMiddleware, (req, res) => {
     res.json({ message: 'Acesso permitido', user: req.user });

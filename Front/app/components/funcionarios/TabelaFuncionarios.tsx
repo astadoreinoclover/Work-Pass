@@ -7,14 +7,17 @@ import { getFuncionarios } from '@/services/FuncionariosService';
 import { FuncionariosContext } from '@/contexts/FuncionariosContext';
 import { NavigationProp, useNavigation } from '@react-navigation/native'; 
 import { RootStackParamList } from '../navigation/types';
+import axios from 'axios';
 
 type Funcionarios = {
-  id: number;
-  name: string;
-  department: string;
-  entregue: number;
-  naoentregue: number;
-  emdesenvolvimento: number;
+  userId: number;
+  userName: string;
+  userDepartament: string;
+  taskCounts: {
+    CONCLUIDA: number;
+    EM_ANDAMENTO: number;
+    NAO_ENTREGUE: number;
+  };
 };
 
 export default function TabelaFuncionarios() {
@@ -25,6 +28,7 @@ export default function TabelaFuncionarios() {
   const { filterFunc } = useContext(FuncionariosContext);
   const authContext = useContext(AuthContext);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setEmail(authContext.authData?.email || null);
@@ -46,30 +50,40 @@ export default function TabelaFuncionarios() {
   useEffect(() => {
     const fetchFuncionarios = async () => {
       try {
-        const data = await getFuncionarios(filterFunc);
-        console.log('Dados do ranking recebidos:', data);
-        setFuncionarios(data);
+        const response = await axios.get('http://localhost:3000/api/countStatus', {
+          params: { departamento: filterFunc, id_empresa: authContext.authData?.id_empresa }
+        });
+        const data = response.data
+        setFuncionarios(data.taskCounts);
       } catch (error) {
         console.error('Erro ao buscar ranking:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchFuncionarios();
   }, [filterFunc]);
 
-  const renderFuncionarios = ({ item }: { item: Funcionarios }) => (
+  const renderFuncionarios = ({ item }: {item:Funcionarios}) => (
     <View style={styles.row}>
-       <TouchableOpacity 
+      <TouchableOpacity 
         style={styles.cell} 
-        onPress={() => navigation.navigate('Funcionario', { itemName: item.name, itemDepartament: item.department, itemId: item.id })}
+        onPress={() => navigation.navigate('Funcionario', { 
+          itemName: item.userName, 
+          itemDepartament: item.userDepartament, 
+          itemId: item.userId 
+        })}
       >
-        <Text style={{color: '#2C3E50', fontWeight: '700'}}>{item.name}</Text>
+        <Text style={{ color: '#2C3E50', fontWeight: '700' }}>{item.userName}</Text>
       </TouchableOpacity>
-      <Text style={styles.cell}>{item.entregue}</Text>
-      <Text style={styles.cell}>{item.emdesenvolvimento}</Text>
-      <Text style={styles.cell}>{item.naoentregue}</Text>
+      <Text style={styles.cell}>{item.taskCounts.CONCLUIDA}</Text>
+      <Text style={styles.cell}>{item.taskCounts.EM_ANDAMENTO}</Text>
+      <Text style={styles.cell}>{item.taskCounts.NAO_ENTREGUE}</Text>
     </View>
   );
+
+  if (loading) return <p>Carregando...</p>;
 
   return (
     <View style={[styles.container, { width: width >= 768 ? width * 0.4 : width * 0.9, height: width >= 768 ? height * 0.6 : height * 0.35 }]}>
@@ -84,7 +98,7 @@ export default function TabelaFuncionarios() {
         <FlatList
           data={funcionarios}
           renderItem={renderFuncionarios}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.userId.toString()}
           showsVerticalScrollIndicator={false}
         />
       </ScrollViewIndicator>

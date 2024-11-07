@@ -83,16 +83,16 @@ export default function Ranking() {
       <Text style={[styles.cell, { fontSize: width >= 990 ? 15 : 12, minWidth: width >= 581 ? 170 : 120 }]}>{item.pts}</Text>
       {filterTask === 'NAO_ENTREGUE' && (
         <TouchableOpacity style={[styles.botao, { backgroundColor: "#00f" }]}>
-          <Text style={[styles.cell, { color: "#fff", fontSize: width >= 990 ? 15 : 12, minWidth: width >= 581 ? 160 : 100 }]}>Relançar</Text>
+          <Text style={[styles.cell, { color: "#fff", fontSize: width >= 990 ? 15 : 12, minWidth: width >= 581 ? 140 : 100 }]}>Relançar</Text>
         </TouchableOpacity>
       )}
       {filterTask === 'EM_ANDAMENTO' && (
         <>
           <TouchableOpacity style={[styles.botao, { backgroundColor: "#0f0" }]}>
-            <Text style={[styles.cell, { fontSize: width >= 990 ? 15 : 12, minWidth: width >= 581 ? 160 : 100, color: "#fff" }]}>Editar</Text>
+            <Text style={[styles.cell, { fontSize: width >= 990 ? 15 : 12, minWidth: width >= 581 ? 140 : 100, color: "#fff" }]}>Editar</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.botao, { backgroundColor: "#f00" }]}>
-            <Text style={[styles.cell, { fontSize: width >= 990 ? 15 : 12, minWidth: width >= 581 ? 160 : 100, color: "#fff" }]}>Cancelar</Text>
+            <Text style={[styles.cell, { fontSize: width >= 990 ? 15 : 12, minWidth: width >= 581 ? 140 : 100, color: "#fff" }]}>Cancelar</Text>
           </TouchableOpacity>
         </>
       )}
@@ -109,12 +109,12 @@ export default function Ranking() {
           <Text style={[styles.headerCell, { fontSize: width >= 990 ? 18 : 12, minWidth: width >= 581 ? 180 : 120 }]}>Fechamento</Text>
           <Text style={[styles.headerCell, { fontSize: width >= 990 ? 18 : 12, minWidth: width >= 581 ? 180 : 120 }]}>Pts Possiveis</Text>
           {filterTask === 'NAO_ENTREGUE' && (
-            <Text style={[styles.headerCell, { fontSize: width >= 990 ? 18 : 12, minWidth: width >= 581 ? 180 : 120 }]}>Relançar</Text>
+            <Text style={[styles.headerCell, { fontSize: width >= 990 ? 18 : 12, minWidth: width >= 581 ? 190 : 120 }]}>Relançar</Text>
           )}
           {filterTask === 'EM_ANDAMENTO' && (
             <>
-              <Text style={[styles.headerCell, { fontSize: width >= 990 ? 18 : 12, minWidth: width >= 581 ? 180 : 120 }]}>Editar</Text>
-              <Text style={[styles.headerCell, { fontSize: width >= 990 ? 18 : 12, minWidth: width >= 581 ? 180 : 120 }]}>Cancelar</Text>
+              <Text style={[styles.headerCell, { fontSize: width >= 990 ? 18 : 12, minWidth: width >= 581 ? 190 : 120 }]}>Editar</Text>
+              <Text style={[styles.headerCell, { fontSize: width >= 990 ? 18 : 12, minWidth: width >= 581 ? 190 : 120 }]}>Cancelar</Text>
             </>
           )}
         </View>
