@@ -199,7 +199,6 @@ exports.getfuncionariosExclusao = async (req, res) => {
     }
 };
 
-// Troca de senha
 exports.updateSenha = async (req, res) => {
     const { id } = req.params;
     const {  senha, novaSenha } = req.body;
@@ -228,14 +227,12 @@ exports.getTaskCountByEmployee = async (req, res) => {
     const { departamento, id_empresa } = req.query;
 
     try {
-      // Filtro base para empresa e role de usuário
       const baseFilter = {
         role: 'USER',
         id_empresa: Number(id_empresa),
-        ...(departamento !== 'Geral' && { departamento }), // Condicional para departamento se não for "Geral"
+        ...(departamento !== 'Geral' && { departamento }),
       };
 
-      // Buscar usuários e contar tasks de acordo com o status
       const usersTasksCount = await prisma.user.findMany({
         where: baseFilter,
         select: {
@@ -250,7 +247,6 @@ exports.getTaskCountByEmployee = async (req, res) => {
         },
       });
 
-      // Formatar a resposta com a contagem por status para cada usuário
       const taskCounts = usersTasksCount.map((user) => {
         const counts = {
           EM_ANDAMENTO: 0,
@@ -277,3 +273,54 @@ exports.getTaskCountByEmployee = async (req, res) => {
     }
 };
 
+exports.getTaskCountByDepartament = async (req, res) => {
+    const { departamento, id_empresa } = req.query;
+
+    try {
+        const baseFilter = {
+            role: 'USER',
+            id_empresa: Number(id_empresa),
+        };
+
+        if (departamento !== 'Geral') {
+            baseFilter.departamento = departamento;
+        }
+
+        const usersTasksCount = await prisma.user.findMany({
+            where: baseFilter,
+            select: {
+                id: true,
+                name: true,
+                departamento: true,
+                tasks: {
+                    select: {
+                        status: true,
+                    },
+                },
+            },
+        });
+
+        const taskCounts = {
+            totalTasks: 0,
+            EM_ANDAMENTO: 0,
+            CONCLUIDA: 0,
+            NAO_ENTREGUE: 0,
+        };
+
+        usersTasksCount.forEach(user => {
+            user.tasks.forEach(task => {
+                taskCounts[task.status]++;
+            });
+            taskCounts.totalTasks += user.tasks.length;
+        });
+
+        if (departamento === 'Geral') {
+            return res.status(200).json({ taskCounts });
+        }
+
+        res.status(200).json({ taskCounts });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Erro ao buscar contagem de tasks por funcionário.' });
+    }
+};

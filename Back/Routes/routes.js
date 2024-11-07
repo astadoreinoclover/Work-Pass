@@ -29,6 +29,7 @@ router.get('/user/:id', userController.getUserById)
 
 router.get('/countStatus', userController.getTaskCountByEmployee)
 
+router.get('/taskDepartamentStatus', userController.getTaskCountByDepartament)
 
 // Exemplo de rota protegida (requer token JWT)
 router.get('/protected', authMiddleware, (req, res) => {

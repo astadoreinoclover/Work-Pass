@@ -2,30 +2,33 @@ import React, { useEffect, useState, useContext } from 'react';
 import { View, StyleSheet, ActivityIndicator, Text, useWindowDimensions } from 'react-native';
 import { PieChart, BarChart } from 'react-native-chart-kit';
 import { RelatorioContext } from '@/contexts/RelatorioContext';
-import { getRelatorio } from '@/services/RelatorioService';
+import axios from 'axios';
+import { AuthContext } from '@/contexts/Auth';
 
 type Relatorio = {
-  id: number;
-  department: string;
-  entregue: number;
-  naoEntregue: number;
-  desenvolvimento: number;
+  totalTasks: number;
+  EM_ANDAMENTO: number;
+  CONCLUIDA: number;
+  NAO_ENTREGUE: number;
 };
 
 const Chart = () => {
   const { width, height } = useWindowDimensions();
   const { filter, filterForma } = useContext(RelatorioContext);
-  const [data, setData] = useState<Relatorio[]>([]);
+  const [data, setData] = useState<Relatorio | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const authContext = useContext(AuthContext);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
-        const relatorioData = await getRelatorio(filter);
-        setData(relatorioData);
+        const relatorioData = await axios.get('http://localhost:3000/api/taskDepartamentStatus', {
+          params: { departamento: filter, id_empresa: authContext.authData?.id_empresa }
+        });
+        setData(relatorioData.data.taskCounts);
       } catch (error) {
         console.error('Erro ao buscar dados do relatório:', error);
         setError('Erro ao carregar dados, tente novamente mais tarde.');
@@ -37,30 +40,6 @@ const Chart = () => {
     fetchData();
   }, [filter]);
 
-  const chartData = [
-    {
-      name: 'Entregue',
-      population: data.reduce((total, func) => total + func.entregue, 0),
-      color: '#4caf50',
-      legendFontColor: '#7F7F7F',
-      legendFontSize: 15,
-    },
-    {
-      name: 'Não Entregue',
-      population: data.reduce((total, func) => total + func.naoEntregue, 0),
-      color: '#f44336',
-      legendFontColor: '#7F7F7F',
-      legendFontSize: 15,
-    },
-    {
-      name: 'Em Dev',
-      population: data.reduce((total, func) => total + func.desenvolvimento, 0),
-      color: '#2196f3',
-      legendFontColor: '#7F7F7F',
-      legendFontSize: 15,
-    },
-  ];
-
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
@@ -69,12 +48,39 @@ const Chart = () => {
     return <Text style={styles.errorText}>{error}</Text>;
   }
 
+  const chartData = [
+    {
+      name: 'Entregue',
+      population: data?.CONCLUIDA || 0,
+      color: '#4caf50',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 15,
+    },
+    {
+      name: 'Não Entregue',
+      population: data?.NAO_ENTREGUE || 0,
+      color: '#f44336',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 15,
+    },
+    {
+      name: 'Em Dev',
+      population: data?.EM_ANDAMENTO || 0,
+      color: '#2196f3',
+      legendFontColor: '#7F7F7F',
+      legendFontSize: 15,
+    },
+  ];
+
   const chartWidth = width < 768 ? width * 0.8 : width * 0.4;
-  const chartHeight = width >=768 ? height*0.5:height*0.3;
+  const chartHeight = width >= 768 ? height * 0.5 : height * 0.3;
 
   return (
     <View style={styles.chartContainer}>
-      {filterForma === 'Pizza' ? (
+    {filterForma === 'Pizza' ? (
+      data?.totalTasks === 0 ? (
+        <Text style={styles.noTasksText}>Sem tasks até o momento...</Text>
+      ) : (
         <View style={styles.chartWrapper}>
           <PieChart
             data={chartData}
@@ -107,42 +113,41 @@ const Chart = () => {
             ))}
           </View>
         </View>
-      ) : (
-        <View style={styles.chartWrapper}>
-          <BarChart
-            data={{
-              labels: chartData.map(item => item.name),
-              datasets: [
-                {
-                  data: chartData.map(item => item.population),
-                },
-              ],
-            }}
-            width={chartWidth}
-            height={chartHeight}
-            // withVerticalLabels={false}
-            chartConfig={{
-              backgroundColor: '#ffffff',
-              backgroundGradientFrom: '#ffffff',
-              backgroundGradientTo: '#ffffff',
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-              style: {
-                borderRadius: 16,
-                
+      )
+    ) : (
+      <View style={styles.chartWrapper}>
+        <BarChart
+          data={{
+            labels: chartData.map(item => item.name),
+            datasets: [
+              {
+                data: chartData.map(item => item.population),
               },
-            }}
-            yAxisLabel=""
-            yAxisSuffix=""
-            style={{
-              marginVertical: 8,
+            ],
+          }}
+          width={chartWidth}
+          height={chartHeight}
+          chartConfig={{
+            backgroundColor: '#ffffff',
+            backgroundGradientFrom: '#ffffff',
+            backgroundGradientTo: '#ffffff',
+            decimalPlaces: 0,
+            color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            style: {
               borderRadius: 16,
-            }}
-          />
-        </View>
-      )}
-    </View>
+            },
+          }}
+          yAxisLabel=""
+          yAxisSuffix=""
+          style={{
+            marginVertical: 8,
+            borderRadius: 16,
+          }}
+        />
+      </View>
+    )}
+  </View>
   );
 };
 
@@ -174,6 +179,12 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: 'red',
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  noTasksText: {
+    fontSize: 18,
+    color: 'gray',
     textAlign: 'center',
     marginTop: 20,
   },
