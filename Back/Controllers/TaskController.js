@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const { parse, isBefore } = require('date-fns');
 
 // Criar uma nova Task
 exports.createTask = async (req, res) => {
@@ -110,11 +111,12 @@ exports.deleteAllTasksByUserId = async (req, res) => {
     }
 };
 
+
 exports.getTaskDetailsByStatusAndDepartment = async (req, res) => {
     const { status, departamento, id_empresa } = req.body;
 
     try {
-        // Buscando usuários com base nas condições fornecidas
+        // Buscando usuários com base nas condições fornecidas e incluindo as tarefas
         const users = await prisma.user.findMany({
             where: {
                 id_empresa: id_empresa,
@@ -122,27 +124,43 @@ exports.getTaskDetailsByStatusAndDepartment = async (req, res) => {
                 ...(departamento && departamento.toLowerCase() !== 'geral' ? { departamento } : {})
             },
             include: {
-                tasks: { // Incluindo UserTasks para obter o status
-                    where: {
-                        status: status,
-                    },
+                tasks: {
                     include: {
-                        task: true // Incluir as informações da Task associada
+                        task: true // Incluindo detalhes da Task associada
                     }
                 }
             }
         });
 
-        // Montando a resposta com os detalhes das tarefas e o nome do funcionário para cada associação
+        // Atualizando o status das tarefas se necessário e atualizando a lista de tarefas dos usuários
+        for (const user of users) {
+            for (const userTask of user.tasks) {
+                const fechamentoDate = parse(userTask.task.dataFinal, 'dd/MM/yyyy', new Date());
+
+                if (isBefore(fechamentoDate, new Date()) && userTask.status !== 'NAO_ENTREGUE') {
+                    // Atualiza para 'NAO_ENTREGUE' se a data de fechamento for anterior à data atual
+                    await prisma.userTask.update({
+                        where: { id: userTask.id },
+                        data: { status: 'NAO_ENTREGUE' }
+                    });
+                    // Atualizando o status localmente para refletir na resposta
+                    userTask.status = 'NAO_ENTREGUE';
+                }
+            }
+        }
+
+        // Montando a resposta com os detalhes das tarefas e o nome do funcionário
         const tasksResponse = users.flatMap(user => 
-            user.tasks.map(userTask => ({
-                funcionario: user.name,
-                id_task: userTask.id,
-                titulo: userTask.task.titulo,
-                descricao: userTask.task.descricao,
-                fechamento: userTask.task.dataFinal,
-                pts: userTask.task.valorEntrega
-            }))
+            user.tasks
+                .filter(userTask => userTask.status === status)
+                .map(userTask => ({
+                    funcionario: user.name,
+                    id_task: userTask.id,
+                    titulo: userTask.task.titulo,
+                    descricao: userTask.task.descricao,
+                    fechamento: userTask.task.dataFinal,
+                    pts: userTask.task.valorEntrega
+                }))
         );
 
         res.status(200).json(tasksResponse);
@@ -151,6 +169,3 @@ exports.getTaskDetailsByStatusAndDepartment = async (req, res) => {
         res.status(500).json({ error: 'Erro ao buscar tarefas', details: error.message });
     }
 };
-
-
-
