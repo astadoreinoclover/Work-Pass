@@ -137,7 +137,7 @@ exports.getTaskDetailsByStatusAndDepartment = async (req, res) => {
             for (const userTask of user.tasks) {
                 const fechamentoDate = parse(userTask.task.dataFinal, 'dd/MM/yyyy', new Date());
 
-                if (isBefore(fechamentoDate, new Date()) && userTask.status !== 'NAO_ENTREGUE') {
+                if (isBefore(fechamentoDate, new Date()) && userTask.status === 'EM_ANDAMENTO') {
                     // Atualiza para 'NAO_ENTREGUE' se a data de fechamento for anterior à data atual
                     await prisma.userTask.update({
                         where: { id: userTask.id },
