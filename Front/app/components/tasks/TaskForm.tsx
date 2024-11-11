@@ -244,7 +244,9 @@ const TaskForm = () => {
                 confirmButtonColor="#DD6B55"
                 onConfirmPressed={() => {
                     setAlertVisible(false);
+                    navigation.navigate('Tasks')
                 }}
+                overlayStyle={{ backgroundColor: 'transparent' }}
             />
         </ScrollView>
     );

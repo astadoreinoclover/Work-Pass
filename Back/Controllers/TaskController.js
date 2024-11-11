@@ -93,11 +93,11 @@ exports.createTaskUser = async (req, res) => {
 };
 
 exports.deleteAllTasksByUserId = async (req, res) => {
-    const { user_id } = req.params; // O ID do usuário será passado como parâmetro da URL
+    const { user_id } = req.params;
     try {
         const deletedTasks = await prisma.userTask.deleteMany({
             where: {
-                user_id: user_id, // Filtra as tarefas do usuário específico
+                user_id: user_id,
             },
         });
 
@@ -116,7 +116,6 @@ exports.getTaskDetailsByStatusAndDepartment = async (req, res) => {
     const { status, departamento, id_empresa } = req.body;
 
     try {
-        // Buscando usuários com base nas condições fornecidas e incluindo as tarefas
         const users = await prisma.user.findMany({
             where: {
                 id_empresa: id_empresa,
@@ -126,30 +125,26 @@ exports.getTaskDetailsByStatusAndDepartment = async (req, res) => {
             include: {
                 tasks: {
                     include: {
-                        task: true // Incluindo detalhes da Task associada
+                        task: true
                     }
                 }
             }
         });
 
-        // Atualizando o status das tarefas se necessário e atualizando a lista de tarefas dos usuários
         for (const user of users) {
             for (const userTask of user.tasks) {
                 const fechamentoDate = parse(userTask.task.dataFinal, 'dd/MM/yyyy', new Date());
 
                 if (isBefore(fechamentoDate, new Date()) && userTask.status === 'EM_ANDAMENTO') {
-                    // Atualiza para 'NAO_ENTREGUE' se a data de fechamento for anterior à data atual
                     await prisma.userTask.update({
                         where: { id: userTask.id },
                         data: { status: 'NAO_ENTREGUE' }
                     });
-                    // Atualizando o status localmente para refletir na resposta
                     userTask.status = 'NAO_ENTREGUE';
                 }
             }
         }
 
-        // Montando a resposta com os detalhes das tarefas e o nome do funcionário
         const tasksResponse = users.flatMap(user => 
             user.tasks
                 .filter(userTask => userTask.status === status)
@@ -167,5 +162,28 @@ exports.getTaskDetailsByStatusAndDepartment = async (req, res) => {
     } catch (error) {
         console.error('Erro ocorrido:', error);
         res.status(500).json({ error: 'Erro ao buscar tarefas', details: error.message });
+    }
+};
+
+exports.deleteUserTaskById = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      const userTask = await prisma.userTask.findUnique({
+        where: { id: parseInt(id) },
+      });
+
+      if (!userTask) {
+        return res.status(404).json({ message: 'UserTask não encontrada' });
+      }
+
+      await prisma.userTask.delete({
+        where: { id: parseInt(id) },
+      });
+
+      return res.status(200).json({ message: 'UserTask excluída com sucesso' });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Erro ao excluir a UserTask' });
     }
 };

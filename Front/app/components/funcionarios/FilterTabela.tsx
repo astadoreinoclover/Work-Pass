@@ -1,10 +1,11 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, useWindowDimensions, TouchableOpacity } from 'react-native';
 import { AuthContext } from '@/contexts/Auth';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getDepartments } from '@/services/RankingService';
 import { FuncionariosContext } from '@/contexts/FuncionariosContext';
 import axios from 'axios';
+import { useFocusEffect } from 'expo-router';
 
 export default function FilterTabela() {
   const { width, height } = useWindowDimensions();
@@ -15,33 +16,35 @@ export default function FilterTabela() {
   const [selectedDepartment, setSelectedDepartment] = useState<string>('Geral');
   const [departments, setDepartments] = useState<string[]>(['Geral']);
 
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3000/api/empresa/${authContext.authData?.id_empresa}/departamentos`)
-        setDepartments([ ...response.data]);
-      } catch (error) {
-        console.error('Erro ao recuperar departamentos:', error);
-      }
+  useFocusEffect(
+    useCallback(() => {
+      const fetchDepartments = async () => {
+        try {
+          const response = await axios.get(`http://localhost:3000/api/empresa/${authContext.authData?.id_empresa}/departamentos`)
+          setDepartments([ ...response.data]);
+        } catch (error) {
+          console.error('Erro ao recuperar departamentos:', error);
+        }
 
-    };
+      };
 
-    const fetchStoredFilters = async () => {
-      try {
-        const storedDepartment = await AsyncStorage.getItem('Departament-Funcionarios');
-        setSelectedDepartment('Geral');
-        setFilterFunc('Geral')
-      } catch (error) {
-        console.error('Erro ao recuperar filtros armazenados:', error);
-        setSelectedDepartment('Geral');
-      }
-    };
+      const fetchStoredFilters = async () => {
+        try {
+          const storedDepartment = await AsyncStorage.getItem('Departament-Funcionarios');
+          setSelectedDepartment('Geral');
+          setFilterFunc('Geral')
+        } catch (error) {
+          console.error('Erro ao recuperar filtros armazenados:', error);
+          setSelectedDepartment('Geral');
+        }
+      };
 
-    setEmail(authContext.authData?.email || null);
-    setName(authContext.authData?.name || null);
-    fetchDepartments();
-    fetchStoredFilters();
-  }, [authContext.authData]);
+      setEmail(authContext.authData?.email || null);
+      setName(authContext.authData?.name || null);
+      fetchDepartments();
+      fetchStoredFilters();
+    }, [authContext.authData])
+  );
 
   const updateDepartment = async (department: string) => {
     setSelectedDepartment(department);

@@ -31,6 +31,8 @@ router.get('/countStatus', userController.getTaskCountByEmployee)
 
 router.get('/taskDepartamentStatus', userController.getTaskCountByDepartament)
 
+router.delete('/deleteTask/:id', taskController.deleteUserTaskById)
+
 // Exemplo de rota protegida (requer token JWT)
 router.get('/protected', authMiddleware, (req, res) => {
     res.json({ message: 'Acesso permitido', user: req.user });
