@@ -149,11 +149,12 @@ import ScrollViewIndicator from 'react-native-scroll-indicator';
 import { getRanking } from '@/services/RankingService';
 import { useFocusEffect } from '@react-navigation/native';
 import { RankingContext } from '@/contexts/RankingContext'; // Adicione isso
+import axios from 'axios';
 
 type Employee = {
   id: number;
   name: string;
-  department: string;
+  departament: string;
   points: number;
 };
 
@@ -186,9 +187,12 @@ export default function Ranking() {
   useEffect(() => {
     const fetchRanking = async () => {
       try {
-        const data = await getRanking(filter, period);
-        console.log('Dados do ranking recebidos:', data);
-        setEmployees(data);
+        const response = await axios.post(`http://localhost:3000/api/ranking`, {
+          departamento: filter,
+          id_empresa: authContext.authData?.id_empresa,
+          periodo: period
+        });
+        setEmployees(response.data);
       } catch (error) {
         console.error('Erro ao buscar ranking:', error);
       }
@@ -201,7 +205,7 @@ export default function Ranking() {
     <View style={styles.row}>
       <Text style={styles.cell}>{index + 1}</Text>
       <Text style={styles.cell}>{item.name}</Text>
-      <Text style={styles.cell}>{item.department}</Text>
+      <Text style={styles.cell}>{item.departament}</Text>
       <Text style={styles.cell}>{item.points}</Text>
     </View>
   );

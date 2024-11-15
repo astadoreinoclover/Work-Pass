@@ -187,3 +187,78 @@ exports.deleteUserTaskById = async (req, res) => {
       return res.status(500).json({ message: 'Erro ao excluir a UserTask' });
     }
 };
+
+exports.getRanking = async (req, res) => {
+    const { id_empresa, departamento, periodo } = req.body;
+    const currentDate = new Date();
+    let startDate, endDate;
+
+    if (periodo === 'Semana') {
+      const dayOfWeek = currentDate.getDay();
+      startDate = new Date(currentDate);
+      startDate.setDate(currentDate.getDate() - dayOfWeek);
+      startDate.setHours(0, 0, 0, 0);
+
+      endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+      endDate.setHours(23, 59, 59, 999);
+    } else if (periodo === 'Mês') {
+      startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      startDate.setHours(0, 0, 0, 0);
+
+      endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+      endDate.setHours(23, 59, 59, 999);
+    } else if (periodo === 'Ano') {
+      startDate = new Date(currentDate.getFullYear(), 0, 1);
+      startDate.setHours(0, 0, 0, 0);
+
+      endDate = new Date(currentDate.getFullYear(), 11, 31);
+      endDate.setHours(23, 59, 59, 999);
+    }
+
+    try {
+      const usersPoints = await prisma.user.findMany({
+        where: {
+          id_empresa: parseInt(id_empresa),
+          departamento: departamento === 'Geral' ? undefined : departamento, 
+          role: 'USER' 
+        },
+        select: {
+          id: true,
+          name: true,
+          departamento: true,
+          tasks: {
+            where: {
+              status: 'CONCLUIDA',
+              updatedAt: {
+                gte: startDate,
+                lte: endDate,
+              },
+            },
+            select: {
+              task: {
+                select: {
+                  valorEntrega: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const result = usersPoints.map(user => {
+        const totalPontos = user.tasks.reduce((sum, userTask) => sum + userTask.task.valorEntrega, 0);
+        return {
+          id: user.id,
+          name: user.name,
+          departament: user.departamento,
+          points: totalPontos,
+        };
+      });
+
+      return res.json(result);
+    } catch (error) {
+      console.error("Erro ao buscar pontos dos usuários:", error);
+      return res.status(500).json({ error: "Erro interno do servidor" });
+    }
+};

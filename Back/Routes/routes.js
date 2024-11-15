@@ -11,6 +11,8 @@ const userController = require('../Controllers/UserController.js');
 const authMiddleware = require('../Middlewares/AuthMiddleware.js');
 const emderecoController = require('../Controllers/EnderecoController.js')
 
+router.post('/ranking', taskController.getRanking)
+
 // Rotas de login e registro
 router.post('/login', loginController.login);
 router.post('/register', userController.createUser);

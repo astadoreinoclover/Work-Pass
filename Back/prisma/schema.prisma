@@ -81,6 +81,8 @@ model UserTask {
   status    StatusTask
   user      User     @relation(fields: [user_id], references: [id])
   task      Task     @relation(fields: [task_id], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
 
 model Gaming {
