@@ -15,23 +15,19 @@ router.post('/ranking', taskController.getRanking)
 
 // Rotas de login e registro
 router.post('/login', loginController.login);
+
+// Rotas User
 router.post('/register', userController.createUser);
-router.post('/createEndereco', emderecoController.createEndereco)
 router.post('/users', userController.getUsersByRoleAndDepartment)
-
+router.get('/user/:id', userController.getUserById)
+router.get('/taskDepartamentStatus', userController.getTaskCountByDepartament)
+router.get('/countStatus', userController.getTaskCountByEmployee)
 router.get('/funcionariosExclussao', authMiddleware, userController.getfuncionariosExclusao)
-
-router.post('/endereco', emderecoController.createEndereco);
-
 router.delete('/funcionariosDelete/:id', userController.deleteUser)
-
 router.put('/trocaSenha/:id', userController.updateSenha)
 
-router.get('/user/:id', userController.getUserById)
-
-router.get('/countStatus', userController.getTaskCountByEmployee)
-
-router.get('/taskDepartamentStatus', userController.getTaskCountByDepartament)
+router.post('/createEndereco', emderecoController.createEndereco)
+router.post('/endereco', emderecoController.createEndereco);
 
 router.delete('/deleteTask/:id', taskController.deleteUserTaskById)
 

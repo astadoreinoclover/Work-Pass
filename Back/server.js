@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const routes = require('./Routes/routes.js');
 const cors = require('cors');
 
-// Configuração do CORS com origem específica
 app.use(cors());
 
 app.use(bodyParser.json());

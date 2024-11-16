@@ -1,7 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Criar uma nova Gaming
 exports.createGaming = async (req, res) => {
     const { user_id } = req.body;
     try {
@@ -18,11 +17,9 @@ exports.createGaming = async (req, res) => {
     }
 };
 
-// Obter Gaming por ID
 exports.getGamingById = async (req, res) => {
     const { user_id } = req.params;
 
-    // Verifica se o user_id está definido
     if (!user_id) {
         return res.status(400).json({ error: "user_id não fornecido" });
     }
@@ -31,12 +28,11 @@ exports.getGamingById = async (req, res) => {
         const gamings = await prisma.gaming.findMany({
             where: {
                 user_id: {
-                    equals: parseInt(user_id), // Aqui é como você busca por um user_id específico
+                    equals: parseInt(user_id),
                 },
             },
         });
 
-        // Verifica se algum registro foi encontrado
         if (gamings.length === 0) {
             return res.status(404).json({ error: "Gaming não encontrado" });
         }
@@ -47,8 +43,6 @@ exports.getGamingById = async (req, res) => {
     }
 };
 
-
-// Atualizar uma Gaming
 exports.updateGaming = async (req, res) => {
     const { id } = req.params;
     const { pontuacao, nivel, tempoJogos } = req.body;
@@ -67,7 +61,6 @@ exports.updateGaming = async (req, res) => {
     }
 };
 
-// Deletar uma Gaming
 exports.deleteGaming = async (req, res) => {
     const { id } = req.params;
     try {

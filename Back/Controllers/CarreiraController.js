@@ -1,7 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Criar uma nova Carreira
 exports.createCarreira = async (req, res) => {
     const { id_user, nome, descricao } = req.body;
     try {
@@ -18,7 +17,6 @@ exports.createCarreira = async (req, res) => {
     }
 };
 
-// Obter uma Carreira por ID
 exports.getCarreiraById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -32,7 +30,6 @@ exports.getCarreiraById = async (req, res) => {
     }
 };
 
-// Atualizar uma Carreira
 exports.updateCarreira = async (req, res) => {
     const { id } = req.params;
     const { nome, descricao } = req.body;
@@ -50,7 +47,6 @@ exports.updateCarreira = async (req, res) => {
     }
 };
 
-// Deletar uma Carreira
 exports.deleteCarreira = async (req, res) => {
     const { id } = req.params;
     try {

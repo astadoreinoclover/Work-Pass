@@ -1,7 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Criar uma nova Empresa
 exports.createEmpresa = async (req, res) => {
     const { nome, cnpj} = req.body;
     try {
@@ -33,7 +32,6 @@ exports.getEmpresaById = async (req, res) => {
     }
 };
 
-// Atualizar uma Empresa
 exports.updateEmpresa = async (req, res) => {
     const { id } = req.params;
     const { nome, cnpj, dataContratacao, tempoDeContrato, statusDoPlano } = req.body;
@@ -54,7 +52,6 @@ exports.updateEmpresa = async (req, res) => {
     }
 };
 
-// Deletar uma Empresa
 exports.deleteEmpresa = async (req, res) => {
     const { id } = req.params;
     try {
@@ -68,21 +65,18 @@ exports.deleteEmpresa = async (req, res) => {
 };
 
 exports.getDepartamentosByEmpresa = async (req, res) => {
-    const { id_empresa } = req.params; // Recebendo o ID da empresa via parâmetros da rota
-  
+    const { id_empresa } = req.params;
     try {
       const departamentos = await prisma.user.findMany({
         where: {
-          id_empresa: Number(id_empresa), // Filtra os usuários pela empresa
+          id_empresa: Number(id_empresa),
         },
         select: {
-          departamento: true, // Seleciona apenas o campo departamento
+          departamento: true,
         },
       });
-  
-      // Extraindo departamentos únicos
+
       const departamentosUnicos = [...new Set(departamentos.map(dep => dep.departamento))];
-  
       return res.json(departamentosUnicos);
     } catch (error) {
       console.error(error);

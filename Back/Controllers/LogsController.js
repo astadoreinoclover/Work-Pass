@@ -1,7 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Criar um novo Log
 exports.createLog = async (req, res) => {
     const { id_user, acao } = req.body;
     try {
@@ -18,7 +17,6 @@ exports.createLog = async (req, res) => {
     }
 };
 
-// Obter Logs por ID de usuário
 exports.getLogsByUserId = async (req, res) => {
     const { id_user } = req.params;
     try {
@@ -32,7 +30,6 @@ exports.getLogsByUserId = async (req, res) => {
     }
 };
 
-// Atualizar um Log
 exports.updateLog = async (req, res) => {
     const { id } = req.params;
     const { acao, data } = req.body;
@@ -50,7 +47,6 @@ exports.updateLog = async (req, res) => {
     }
 };
 
-// Deletar um Log
 exports.deleteLog = async (req, res) => {
     const { id } = req.params;
     try {

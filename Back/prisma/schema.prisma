@@ -119,7 +119,6 @@ model HabilidadeUser {
   user              User      @relation(fields: [user_id], references: [id])
 }
 
-// Enums
 enum Role {
   USER
   MANAGER

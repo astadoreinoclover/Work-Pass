@@ -5,13 +5,11 @@ const bcrypt = require('bcrypt');
 exports.createUser = async (req, res) => {
     const { name, email, password, cpf, numero, departamento, role, dataNascimento, funcao, id_empresa } = req.body;
 
-    // Validação do e-mail
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         return res.status(400).json({ error: 'E-mail inválido.' });
     }
 
-    // Verifica se o e-mail já está cadastrado
     const existingUser = await prisma.user.findUnique({
         where: { email },
     });
@@ -19,7 +17,6 @@ exports.createUser = async (req, res) => {
         return res.status(400).json({ error: 'E-mail já cadastrado.' });
     }
 
-    // Validação da senha
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!passwordRegex.test(password)) {
         return res.status(400).json({
@@ -52,7 +49,6 @@ exports.createUser = async (req, res) => {
 };
 
 
-// Obter um usuário por ID
 exports.getUserById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -67,15 +63,14 @@ exports.getUserById = async (req, res) => {
     }
 };
 
-// obter usuario
 exports.getUsersByRoleAndDepartment = async (req, res) => {
-    const { role, departamento, id_empresa } = req.body; // Espera-se que role, departamento e id_empresa sejam passados no corpo da requisição
+    const { role, departamento, id_empresa } = req.body;
 
     try {
         const whereClause = {
             ...(role && { role }), // Filtra por role se fornecido
-            ...(departamento && departamento.toLowerCase() !== 'geral' && { departamento }), // Filtra por departamento se fornecido e não for 'geral'
-            ...(id_empresa && { id_empresa }), // Filtra por id_empresa se fornecido
+            ...(departamento && departamento.toLowerCase() !== 'geral' && { departamento }),
+            ...(id_empresa && { id_empresa }),
         };
 
         const users = await prisma.user.findMany({
@@ -87,14 +82,12 @@ exports.getUsersByRoleAndDepartment = async (req, res) => {
             return res.status(404).json({ message: 'Nenhum usuário encontrado com os critérios especificados.' });
         }
 
-        res.status(200).json(users); // Retorna os usuários encontrados com status 200
+        res.status(200).json(users);
     } catch (error) {
         res.status(500).json({ error: 'Erro ao buscar usuários', details: error.message });
     }
 };
 
-
-// Atualizar um usuário
 exports.updateUser = async (req, res) => {
     const { id } = req.params;
     const {  email, numero, departamento, role } = req.body;
@@ -114,7 +107,6 @@ exports.updateUser = async (req, res) => {
     }
 };
 
-// Deletar um usuário
 exports.deleteUser = async (req, res) => {
     const { id } = req.params;
 
@@ -162,7 +154,6 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
-//Buscar usuarios na tela de exclusão
 exports.getfuncionariosExclusao = async (req, res) => {
     const { departamento, id_empresa, userId, role } = req.query;
 

@@ -2,7 +2,6 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { parse, isBefore } = require('date-fns');
 
-// Criar uma nova Task
 exports.createTask = async (req, res) => {
     const { titulo, descricao, valorEntrega, habilidadeId, dataFinal } = req.body;
 
@@ -27,7 +26,6 @@ exports.createTask = async (req, res) => {
     }
 };
 
-// Obter uma Task por ID
 exports.getTaskById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -41,7 +39,6 @@ exports.getTaskById = async (req, res) => {
     }
 };
 
-// Atualizar uma Task
 exports.updateTask = async (req, res) => {
     const { id } = req.params;
     const { titulo, descricao, valorEntrega, habilidadeId, tipoEntrega, dataFinal } = req.body;
@@ -63,7 +60,6 @@ exports.updateTask = async (req, res) => {
     }
 };
 
-// Deletar uma Task
 exports.deleteTask = async (req, res) => {
     const { id } = req.params;
     try {

@@ -1,7 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Criar um novo Endereço
 exports.createEndereco = async (req, res) => {
     const { id_user, bairro, numero, rua, complemento, cidade, estado, pais } = req.body;
     try {
@@ -23,7 +22,6 @@ exports.createEndereco = async (req, res) => {
     }
 };
 
-// Obter Endereço por ID do usuário
 exports.getEnderecoByUserId = async (req, res) => {
     const { id_user } = req.params;
     try {
@@ -37,7 +35,6 @@ exports.getEnderecoByUserId = async (req, res) => {
     }
 };
 
-// Atualizar Endereço
 exports.updateEndereco = async (req, res) => {
     const { id } = req.params;
     const { bairro, numero, rua, complemento, cidade, estado, pais } = req.body;
@@ -60,7 +57,6 @@ exports.updateEndereco = async (req, res) => {
     }
 };
 
-// Deletar Endereço
 exports.deleteEndereco = async (req, res) => {
     const { id } = req.params;
     try {

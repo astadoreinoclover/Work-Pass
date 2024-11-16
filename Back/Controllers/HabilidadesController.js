@@ -1,7 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-// Criar uma nova Habilidade
 exports.createHabilidade = async (req, res) => {
     const {  nome } = req.body;
     try {
@@ -16,7 +15,6 @@ exports.createHabilidade = async (req, res) => {
     }
 };
 
-// Obter Habilidade por ID
 exports.getHabilidadeById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -30,7 +28,6 @@ exports.getHabilidadeById = async (req, res) => {
     }
 };
 
-// Atualizar uma Habilidade
 exports.updateHabilidade = async (req, res) => {
     const { id } = req.params;
     const { nome, nivel } = req.body;
@@ -48,7 +45,6 @@ exports.updateHabilidade = async (req, res) => {
     }
 };
 
-// Deletar uma Habilidade
 exports.deleteHabilidade = async (req, res) => {
     const { id } = req.params;
     try {
