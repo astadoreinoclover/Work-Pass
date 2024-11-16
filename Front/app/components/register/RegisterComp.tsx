@@ -11,18 +11,19 @@ import InputPhone from '../Inputs/PhoneInput';
 import axios from 'axios';
 import { AuthContext } from '@/contexts/Auth';
 import AwesomeAlert from 'react-native-awesome-alerts';  
+import InputCNPJ from '../Inputs/CnpjInput';
 
-export default function FormAddFunc() {
+export default function FormRegister() {
     const { width } = useWindowDimensions();
     const [currentStep, setCurrentStep] = useState(1);
-    const totalSteps = 4;
+    const totalSteps = 5;
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const authContext = useContext(AuthContext);
 
+    const [empresaName, setEmpresaName] = useState('');
+    const [cnpj, setCnpj] = useState('');
     const [nome, setNome] = useState('');
     const [sobrenome, setSobrenome] = useState('');
-    const [departamento, setDepartamento] = useState('');
-    const [funcao, setFuncao] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [neighborhood, setNeighborhood] = useState('');
@@ -34,10 +35,9 @@ export default function FormAddFunc() {
     const [cidade, setCidade] = useState('');
     const [estado, setEstado] = useState('');
     const [pais, setPais] = useState('');
-    const [isGerente, setIsGerente] = useState(false);
 
-    const [showAlert, setShowAlert] = useState(false); // Estado para controlar o alerta
-    const [alertMessage, setAlertMessage] = useState(''); // Mensagem do alerta
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
 
     const [dia, mes, ano] = dataNasc.split('/');
 
@@ -78,17 +78,22 @@ export default function FormAddFunc() {
         }
 
         try {
+            const responseEmpresa = await axios.post('http://localhost:3000/api/empresa', {
+                nome: empresaName,
+                cnpj: cnpj,
+            });
+
             const response = await axios.post('http://localhost:3000/api/register', {
                 name: nome + " " + sobrenome,
                 email: email,
                 password: nome + "*@*" + ano,
-                funcao: isGerente ? 'Gerente' : funcao,
+                funcao: "Admin Geral",
                 cpf: cpf,
                 numero: phone,
-                departamento: authContext.authData?.role === "MANAGER"? departamento: isGerente ? departamento : authContext.authData?.departamento,
+                departamento: "Geral",
                 dataNascimento: dataNasc,
-                role: isGerente ? 'ADMIN' : 'USER',
-                id_empresa: authContext.authData?.id_empresa,
+                role: "MANAGER",
+                id_empresa: responseEmpresa.data.id,
             });
 
             const responseLocation = await axios.post('http://localhost:3000/api/createEndereco', {
@@ -107,7 +112,7 @@ export default function FormAddFunc() {
             })
 
             if(response.status === 201 && responseLocation.status === 201 && responseGaming.status ===201) {
-                navigation.navigate('Funcionarios');
+                navigation.navigate('Login');
             }
         } catch (error) {
             setAlertMessage(error.response?.data?.error || 'Erro ao criar usuário');
@@ -130,40 +135,30 @@ export default function FormAddFunc() {
     const renderStep = () => {
         switch (currentStep) {
             case 1:
+                return(
+                    <View style={styles.containerInputs}>
+                        <InputAddFunc label="Empresa" value={empresaName} setValue={setEmpresaName} />
+                        <InputCNPJ label="CNPJ" value={cnpj} setValue={setCnpj} />
+                    </View>
+                );
+            case 2:
                 return (
                     <View style={styles.containerInputs}>
                         <InputAddFunc label="Nome" value={nome} setValue={setNome} />
                         <InputAddFunc label="Sobrenome" value={sobrenome} setValue={setSobrenome} />
                         <InputDate label="Data Nasc." value={dataNasc} setValue={setDataNasc} />
                         <InputCPF label="CPF" value={cpf} setValue={setCpf} />
-                        {authContext.authData?.role === "MANAGER" && (
-                            <View style={styles.switchContainer}>
-                                <Text style={styles.label}>Você está cadastrando um Gerente?</Text>
-                                <Switch
-                                    value={isGerente}
-                                    onValueChange={(value) => setIsGerente(value)}
-                                    trackColor={{ false: '#D3D3D3', true: '#2C3E50' }}
-                                    thumbColor={isGerente ? '#FFF' : '#FFF'}
-                                />
-                            </View>
-                        )}
 
                     </View>
                 );
-            case 2:
+            case 3:
                 return (
                     <View style={styles.containerInputs}>
                         <InputAddFunc label="Email" value={email} setValue={setEmail} />
                         <InputPhone label="Telefone" value={phone} setValue={setPhone} />
-                        {authContext.authData?.role === "MANAGER" && (
-                            <InputAddFunc label="Departamento" value={departamento} setValue={setDepartamento} />
-                        )}
-                        {!isGerente && (
-                            <InputAddFunc label="Função" value={funcao} setValue={setFuncao} />
-                        )}
                     </View>
                 );
-            case 3:
+            case 4:
                 return (
                     <View style={styles.containerInputs}>
                         <InputAddFunc label="Bairro" value={neighborhood} setValue={setNeighborhood} />
@@ -172,7 +167,7 @@ export default function FormAddFunc() {
                         <InputAddFunc label="Número" value={houseNumber} setValue={setHouseNumber} />
                     </View>
                 );
-            case 4:
+            case 5:
                 return (
                     <View style={styles.containerInputs}>
                         <InputAddFunc label="Cidade" value={cidade} setValue={setCidade} />
@@ -187,7 +182,7 @@ export default function FormAddFunc() {
 
     return (
         <View style={[styles.posicao, { width: width >= 768 ? width * 0.5 : width * 0.9, paddingTop:50}]}>
-            <Text style={[styles.title, { fontSize: width >= 768 ? 30 : 22 }]}>Cadastro de Funcionário</Text>
+            <Text style={[styles.title, { fontSize: width >= 768 ? 30 : 22 }]}>Cadastro de Empresa</Text>
 
             <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
 
@@ -212,7 +207,6 @@ export default function FormAddFunc() {
                 </View>
             </View>
 
-            {/* Componente de Alerta */}
             <AwesomeAlert
                 show={showAlert}
                 showProgress={false}
@@ -223,6 +217,7 @@ export default function FormAddFunc() {
                 showConfirmButton={true}
                 confirmText="Ok"
                 confirmButtonColor="#DD6B55"
+                overlayStyle={{ backgroundColor: 'transparent' }}
                 onConfirmPressed={() => {
                     setShowAlert(false);
                 }}

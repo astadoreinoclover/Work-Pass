@@ -128,7 +128,6 @@ export default function TabelaRemoverFuncionario() {
         />
       )}
 
-      {/* AwesomeAlert para confirmação de exclusão */}
       <AwesomeAlert
         show={confirmDeleteId !== null}
         title="Confirmação de Exclusão"

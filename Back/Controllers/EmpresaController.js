@@ -20,7 +20,6 @@ exports.createEmpresa = async (req, res) => {
     }
 };
 
-// Obter uma Empresa por ID
 exports.getEmpresaById = async (req, res) => {
     const { id } = req.params;
     try {
