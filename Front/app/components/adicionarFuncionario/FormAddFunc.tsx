@@ -1,8 +1,8 @@
-import React, { useContext, useState } from 'react';
-import { View, StyleSheet, useWindowDimensions, Text, TouchableOpacity, Switch } from 'react-native';
+import React, { useCallback, useContext, useState } from 'react';
+import { View, StyleSheet, useWindowDimensions, Text, TouchableOpacity, Switch, ScrollView } from 'react-native';
 import InputAddFunc from '../Inputs/RenderAddFunc';
 import ProgressBar from '../Inputs/ProgressBar';
-import { useNavigation } from 'expo-router';
+import { useFocusEffect, useNavigation } from 'expo-router';
 import { NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/types';
 import InputCPF from '../Inputs/CpfInput';
@@ -18,7 +18,7 @@ export default function FormAddFunc() {
     const totalSteps = 4;
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const authContext = useContext(AuthContext);
-
+    const [departments, setDepartments] = useState<string[]>([]);
     const [nome, setNome] = useState('');
     const [sobrenome, setSobrenome] = useState('');
     const [departamento, setDepartamento] = useState('');
@@ -35,9 +35,23 @@ export default function FormAddFunc() {
     const [estado, setEstado] = useState('');
     const [pais, setPais] = useState('');
     const [isGerente, setIsGerente] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
 
-    const [showAlert, setShowAlert] = useState(false); // Estado para controlar o alerta
-    const [alertMessage, setAlertMessage] = useState(''); // Mensagem do alerta
+    useFocusEffect(
+        useCallback(() => {
+          const fetchDepartments = async () => {
+            try {
+              const response = await axios.get(`http://localhost:3000/api/empresa/${authContext.authData?.id_empresa}/departamentos`)
+              const filteredDepartments = response.data.filter((dep: string) => dep.trim() !== 'Geral');
+              setDepartments([...filteredDepartments]);
+            } catch (error) {
+              console.error('Erro ao recuperar departamentos:', error);
+            }
+          };
+          fetchDepartments();
+        }, [authContext.authData])
+    );
 
     const [dia, mes, ano] = dataNasc.split('/');
 
@@ -156,7 +170,33 @@ export default function FormAddFunc() {
                         <InputAddFunc label="Email" value={email} setValue={setEmail} />
                         <InputPhone label="Telefone" value={phone} setValue={setPhone} />
                         {authContext.authData?.role === "MANAGER" && (
-                            <InputAddFunc label="Departamento" value={departamento} setValue={setDepartamento} />
+                            <>
+                               <InputAddFunc 
+                                    label="Departamento" 
+                                    value={departamento} 
+                                    setValue={setDepartamento} 
+                                />
+
+                                <ScrollView style={{ height: 60 }} contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                                    {departments
+                                        .filter(emp => emp.toLowerCase().includes(departamento.toLowerCase()))
+                                        .map((emp, index) => (
+                                        <View key={index} style={styles.employeeItem}>
+                                            <Text style={styles.text}>{emp}</Text>
+                                            <Switch
+                                            value={departamento === emp}
+                                            onValueChange={() => {
+                                                if (departamento === emp) {
+                                                setDepartamento('');
+                                                } else {
+                                                setDepartamento(emp);
+                                                }
+                                            }}
+                                            />
+                                        </View>
+                                    ))}
+                                </ScrollView>
+                            </>
                         )}
                         {!isGerente && (
                             <InputAddFunc label="Função" value={funcao} setValue={setFuncao} />
@@ -212,7 +252,6 @@ export default function FormAddFunc() {
                 </View>
             </View>
 
-            {/* Componente de Alerta */}
             <AwesomeAlert
                 show={showAlert}
                 showProgress={false}
@@ -290,4 +329,19 @@ const styles = StyleSheet.create({
         color: '#2C3E50',
         marginRight: 10,
     },
+    employeeItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 15,
+        padding: 10,
+        borderRadius: 8,
+        marginVertical: 5,
+        backgroundColor: '#2c3e50',
+      },
+      text: {
+        color: '#ecf0f1',
+        marginLeft: 10,
+        marginRight:5,
+        fontSize: 16,
+      },
 });
