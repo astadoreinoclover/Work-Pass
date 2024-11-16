@@ -86,7 +86,7 @@ export default function FormRegister() {
             const response = await axios.post('http://localhost:3000/api/register', {
                 name: nome + " " + sobrenome,
                 email: email,
-                password: nome + "*@*" + ano,
+                password: nome + "@@@" + ano,
                 funcao: "Admin Geral",
                 cpf: cpf,
                 numero: phone,

@@ -95,7 +95,7 @@ export default function FormAddFunc() {
             const response = await axios.post('http://localhost:3000/api/register', {
                 name: nome + " " + sobrenome,
                 email: email,
-                password: nome + "*@*" + ano,
+                password: nome + "@@@" + ano,
                 funcao: isGerente ? 'Gerente' : funcao,
                 cpf: cpf,
                 numero: phone,
