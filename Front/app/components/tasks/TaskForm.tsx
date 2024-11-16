@@ -190,7 +190,7 @@ const TaskForm = () => {
                 }}
             />
 
-            <View style={{ flexWrap: 'wrap', flexDirection: 'row' }}>
+            <ScrollView style={{ height: 100 }} contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                 {filteredHabilidades.map(hab => (
                     <View key={hab.id} style={styles.employeeItem}>
                         <Switch
@@ -200,7 +200,7 @@ const TaskForm = () => {
                         <Text style={styles.text}>{hab.nome}</Text>
                     </View>
                 ))}
-            </View>
+            </ScrollView>
 
             {habilidadeNotFound && (
                 <TouchableOpacity style={styles.button} onPress={addNewHabilidade}>
@@ -216,7 +216,7 @@ const TaskForm = () => {
                 onChangeText={setSearchText}
             />
 
-            <View style={{ flexWrap: 'wrap', flexDirection: 'row' }}>
+            <ScrollView style={{ height: 100 }} contentContainerStyle={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                 {filteredEmployees.map(emp => (
                     <View key={emp.id} style={styles.employeeItem}>
                         <Switch
@@ -226,7 +226,7 @@ const TaskForm = () => {
                         <Text style={styles.text}>{emp.name} ({emp.departamento})</Text>
                     </View>
                 ))}
-            </View>
+            </ScrollView>
 
             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>Cadastrar Task</Text>
