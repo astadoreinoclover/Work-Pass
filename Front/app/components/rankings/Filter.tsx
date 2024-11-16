@@ -1,10 +1,11 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, useWindowDimensions, TouchableOpacity } from 'react-native';
 import { AuthContext } from '@/contexts/Auth';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getDepartments } from '@/services/RankingService';
 import { RankingContext } from '@/contexts/RankingContext';
 import axios from 'axios';
+import { useFocusEffect } from 'expo-router';
 
 export default function Filter() {
   const { width, height } = useWindowDimensions();
@@ -16,36 +17,38 @@ export default function Filter() {
   const [selectedDepartment, setSelectedDepartment] = useState<string>('Geral');
   const [departments, setDepartments] = useState<string[]>(['Geral']);
 
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3000/api/empresa/${authContext.authData?.id_empresa}/departamentos`)
-        setDepartments([ ...response.data]);
-      } catch (error) {
-        console.error('Erro ao recuperar departamentos:', error);
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchDepartments = async () => {
+        try {
+          const response = await axios.get(`http://localhost:3000/api/empresa/${authContext.authData?.id_empresa}/departamentos`)
+          setDepartments([ ...response.data]);
+        } catch (error) {
+          console.error('Erro ao recuperar departamentos:', error);
+        }
+      };
 
-    const fetchStoredFilters = async () => {
-      try {
-        const storedDepartment = await AsyncStorage.getItem('Departament-Ranking');
-        const storedPeriod = await AsyncStorage.getItem('Period-Ranking');
-        setSelectedDepartment('Geral');
-        setSelectedPeriod('Mês');
-        setFilter('Geral')
-        setPeriod('Mês')
-      } catch (error) {
-        console.error('Erro ao recuperar filtros armazenados:', error);
-        setSelectedDepartment('Geral');
-        setSelectedPeriod('Mês');
-      }
-    };
+      const fetchStoredFilters = async () => {
+        try {
+          const storedDepartment = await AsyncStorage.getItem('Departament-Ranking');
+          const storedPeriod = await AsyncStorage.getItem('Period-Ranking');
+          setSelectedDepartment('Geral');
+          setSelectedPeriod('Mês');
+          setFilter('Geral')
+          setPeriod('Mês')
+        } catch (error) {
+          console.error('Erro ao recuperar filtros armazenados:', error);
+          setSelectedDepartment('Geral');
+          setSelectedPeriod('Mês');
+        }
+      };
 
-    setEmail(authContext.authData?.email || null);
-    setName(authContext.authData?.name || null);
-    fetchDepartments();
-    fetchStoredFilters();
-  }, [authContext.authData]);
+      setEmail(authContext.authData?.email || null);
+      setName(authContext.authData?.name || null);
+      fetchDepartments();
+      fetchStoredFilters();
+    }, [authContext.authData])
+  );
 
   const updatePeriod = async (newPeriod: string) => {
     setSelectedPeriod(newPeriod);

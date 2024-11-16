@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ScrollViewIndicator from 'react-native-scroll-indicator';
 import { getFuncionarios } from '@/services/FuncionariosService';
 import { FuncionariosContext } from '@/contexts/FuncionariosContext';
-import { NavigationProp, useNavigation } from '@react-navigation/native'; 
+import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native'; 
 import { RootStackParamList } from '../navigation/types';
 import axios from 'axios';
 
@@ -47,23 +47,25 @@ export default function TabelaFuncionarios() {
       fetchFilters();
     }, [])
 
-  useEffect(() => {
-    const fetchFuncionarios = async () => {
-      try {
-        const response = await axios.get('http://localhost:3000/api/countStatus', {
-          params: { departamento: filterFunc, id_empresa: authContext.authData?.id_empresa }
-        });
-        const data = response.data
-        setFuncionarios(data.taskCounts);
-      } catch (error) {
-        console.error('Erro ao buscar ranking:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+        const fetchFuncionarios = async () => {
+          try {
+            const response = await axios.get('http://localhost:3000/api/countStatus', {
+              params: { departamento: filterFunc, id_empresa: authContext.authData?.id_empresa }
+            });
+            const data = response.data
+            setFuncionarios(data.taskCounts);
+          } catch (error) {
+            console.error('Erro ao buscar ranking:', error);
+          } finally {
+            setLoading(false);
+          }
+        };
 
-    fetchFuncionarios();
-  }, [filterFunc]);
+        fetchFuncionarios();
+    }, [filterFunc])
+  );
 
   const renderFuncionarios = ({ item }: {item:Funcionarios}) => (
     <View style={styles.row}>

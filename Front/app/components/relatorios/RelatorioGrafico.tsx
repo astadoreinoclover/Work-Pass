@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { View, StyleSheet, ActivityIndicator, Text, useWindowDimensions } from 'react-native';
 import { PieChart, BarChart } from 'react-native-chart-kit';
 import { RelatorioContext } from '@/contexts/RelatorioContext';
 import axios from 'axios';
 import { AuthContext } from '@/contexts/Auth';
+import { useFocusEffect } from 'expo-router';
 
 type Relatorio = {
   totalTasks: number;
@@ -20,7 +21,8 @@ const Chart = () => {
   const [error, setError] = useState<string | null>(null);
   const authContext = useContext(AuthContext);
 
-  useEffect(() => {
+  useFocusEffect(
+    useCallback(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
@@ -38,7 +40,8 @@ const Chart = () => {
     };
 
     fetchData();
-  }, [filter]);
+  }, [filter])
+);
 
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
