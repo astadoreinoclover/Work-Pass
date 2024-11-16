@@ -141,6 +141,7 @@ export default function TabelaRemoverFuncionario() {
         confirmButtonColor="#f00"
         onCancelPressed={() => setConfirmDeleteId(null)}
         onConfirmPressed={handleDelete}
+        overlayStyle={{ backgroundColor: 'transparent' }}
       />
     </View>
   );
