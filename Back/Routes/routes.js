@@ -59,6 +59,7 @@ router.delete('/task/:id', authMiddleware, taskController.deleteTask);
 router.post('/taskUser', taskController.createTaskUser);
 router.delete('/taskUser/:id', authMiddleware, taskController.deleteAllTasksByUserId);
 router.post('/tasks', taskController.getTaskDetailsByStatusAndDepartment)
+router.post('/taskEdite', taskController.getTaskforEdite)
 
 // Rotas para Carreira
 router.post('/carreiras', carreiraController.createCarreira);

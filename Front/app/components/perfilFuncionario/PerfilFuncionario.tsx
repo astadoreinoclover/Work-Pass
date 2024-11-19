@@ -3,7 +3,6 @@ import { Text, View, StyleSheet, useWindowDimensions, ScrollView } from 'react-n
 import { AuthContext } from '@/contexts/Auth';
 import ItemPerfilComponent from './ItemComponenteFuncionario';
 import { useRoute } from '@react-navigation/native';
-import { getFuncionario } from '@/services/FuncionarioService';
 import HabilidadeCard from './HabilidadeCard';
 import Nivel from './Nivel';
 import { RouteParams, Funcionario, Gaming } from './Types';

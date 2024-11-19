@@ -43,7 +43,7 @@ const BackToProfileButton: React.FC = () => {
 
     return (
         <Pressable
-            onPress={() => { navigation.navigate('Perfil') }} // Navega para o perfil
+            onPress={() => { navigation.navigate('Perfil') }}
             onHoverIn={() => {
                 if (isLargeScreen) {
                     setIsHovered(true);
@@ -62,7 +62,7 @@ const BackToProfileButton: React.FC = () => {
                 <View style={styles.iconContainer}>
                     <Svg width={isLargeScreen ? 24 : 16} height={isLargeScreen ? 24 : 16} viewBox="0 0 24 24" fill="none">
                         <Path 
-                            d="M19 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H19v-2z" 
+                            d="M19 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H19v-2z"
                             fill="#fff"
                         />
                     </Svg>

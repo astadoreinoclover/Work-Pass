@@ -112,7 +112,8 @@ export default function FormRegister() {
             })
 
             if(response.status === 201 && responseLocation.status === 201 && responseGaming.status ===201) {
-                navigation.navigate('Login');
+                // navigation.navigate('Login');
+                const authData = await authContext.login(email, nome + "@@@" + ano);
             }
         } catch (error) {
             setAlertMessage(error.response?.data?.error || 'Erro ao criar usuário');

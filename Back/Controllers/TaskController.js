@@ -258,3 +258,35 @@ exports.getRanking = async (req, res) => {
       return res.status(500).json({ error: "Erro interno do servidor" });
     }
 };
+
+exports.getTaskforEdite = async (req, res) => {
+    const { id_empresa, id } = req.body;
+
+    try {
+        const task = await prisma.userTask.findUnique({
+            where: { id: parseInt(id) },
+            include: {
+                task: true,
+                user: {
+                    select: {
+                        id_empresa: true,
+                        id: true
+                    },
+                }
+            }
+        });
+        if (!task) return res.status(404).json({ error: 'Task não encontrada' });
+        res.json({
+            id: task.id,
+            taskName: task.task.titulo,
+            taskDetails: task.task.descricao,
+            valorEntrega: task.task.valorEntrega,
+            userEmpresa: task.user.id_empresa,
+            idUser: task.user.id,
+            habilidadeId: task.task.habilidadeId,
+            dataFinal: task.task.dataFinal
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao buscar Task', details: error.message });
+    }
+}

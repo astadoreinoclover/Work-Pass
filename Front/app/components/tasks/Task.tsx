@@ -118,7 +118,7 @@ export default function Ranking() {
       <Text style={[styles.cell, { fontSize: width >= 990 ? 15 : 12, width: width >= 581 ? 180 : 120 }]}>{item.pts}</Text>
       {filterTask === 'EM_ANDAMENTO' && (
         <>
-          <TouchableOpacity style={[styles.botao, { backgroundColor: "#0f0" }]}>
+          <TouchableOpacity style={[styles.botao, { backgroundColor: "#0f0"}]} onPress={() => navigation.navigate('EditeTask', {id_taskUser: item.id_task})}>
             <Text style={[styles.cell, { fontSize: width >= 990 ? 15 : 12, width: width >= 581 ? 180 : 120, color: "#fff" }]}>Editar</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.botao, { backgroundColor: "#f00" }]} onPress={() => confirmDelete(item.id_task)}>
