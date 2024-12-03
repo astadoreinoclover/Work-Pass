@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ScrollViewIndicator from 'react-native-scroll-indicator';
 import { getRanking } from '@/services/RankingService';
 import { useFocusEffect } from '@react-navigation/native';
-import { RankingContext } from '@/contexts/RankingContext'; // Adicione isso
+import { RankingContext } from '@/contexts/RankingContext';
 import axios from 'axios';
 
 type Employee = {
