@@ -34,6 +34,7 @@ Entre no seu terminal Mysql e execute o comando:
 ```bash
 create database work_pass
 ```
+No terminal do projeto:
 
 ```bash
 
@@ -48,4 +49,4 @@ node server.js
 
 ```
 
-Após iniciar o back-end, seu aplicativo estará pronto para uso.
+Após iniciar o back-end, o aplicativo estará pronto para uso.
