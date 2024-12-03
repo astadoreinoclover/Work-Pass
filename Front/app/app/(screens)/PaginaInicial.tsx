@@ -288,6 +288,7 @@ const styles = StyleSheet.create({
   linksContainer: {
       flexDirection: 'row',
       justifyContent: 'space-around',
+      flexWrap: 'wrap',
       width: '100%',
       marginBottom: 10,
   },
@@ -296,6 +297,7 @@ const styles = StyleSheet.create({
       fontSize: 14,
       fontWeight: 'bold',
       marginHorizontal: 15,
+      marginBottom:15
   },
   copyRight: {
       color: '#fff',
