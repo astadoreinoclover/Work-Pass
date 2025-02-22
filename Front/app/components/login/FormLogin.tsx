@@ -1,24 +1,27 @@
 import React, { useContext, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Dimensions, useWindowDimensions  } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
 import { AuthContext } from '@/contexts/Auth';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from '@/components/navigation/types';
 
 const FormLogin = () => {
-    const { width, height } = useWindowDimensions();
+    const { width } = useWindowDimensions();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [wrongInput, setWrongInput] = useState(false);
-    const [mensagem, setMensagem] = useState('')
+    const [mensagem, setMensagem] = useState('');
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
     const authContext = useContext(AuthContext);
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     const validateEmail = (email: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     };
-    
+
     const handleLogin = async () => {
         setWrongInput(false);
 
-        
         if (!validateEmail(email)) {
             setMensagem('Por favor, insira um e-mail válido.');
             setWrongInput(true);
@@ -34,7 +37,6 @@ const FormLogin = () => {
         try {
             const authData = await authContext.login(email, password);
             if (!authData?.token) {
-                // navigation.navigate('Home', { email });
                 setMensagem('E-mail ou senha incorretos!');
                 setWrongInput(true);
             }
@@ -43,87 +45,154 @@ const FormLogin = () => {
             setWrongInput(true);
         }
     };
-    
+
+    const togglePasswordVisibility = () => {
+        setIsPasswordVisible(prev => !prev);
+    };
+
+    const toHome = () => {
+        navigation.navigate('Home');
+    };
+
     return (
-        <View style={[styles.loginContainer, {width: width * 0.85, padding: width >= 768 ? 20:0}]}>
-            <Text style={styles.loginTitle}>Entrar</Text>
-            <View style={[styles.areaLogin, {width: width >= 768 ? '80%': "90%", padding: width >= 768 ? 30:15}]}>
-                <Text>Email</Text>
-                <TextInput
-                    placeholder='Email'
-                    style={[styles.input, {padding: width >= 768 ? 10:5}]}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    value={email}
-                    onChangeText={setEmail}
-                />
-                <Text>Senha</Text>
-                <TextInput
-                    placeholder='Senha'
-                    style={[styles.input, {padding: width >= 768 ? 10:5}]}
-                    secureTextEntry={true}
-                    value={password}
-                    onChangeText={setPassword}
-                />
-                <View style={styles.alertContainer}>
-                    {wrongInput && <Text style={styles.alertText}>{mensagem}</Text>}
+        <>
+            <View style={[styles.formContainer, { width: width >= 768 ? 400 : '100%' }]}>
+                <Text style={styles.logo}>WP</Text>
+                <Text style={styles.formTitle}>Login</Text>
+                <View style={styles.formGroup}>
+                    <Text style={styles.label}>E-mail</Text>
+                    <TextInput
+                        placeholder='Digite seu e-mail'
+                        style={styles.input}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        value={email}
+                        onChangeText={setEmail}
+                    />
                 </View>
-                <TouchableOpacity testID="loginButton" style={[styles.button, {padding: width >= 768 ? 15:10}]} onPress={handleLogin}>
-                    <Text style={styles.buttonText}>Entrar</Text>
+                <View style={styles.formGroup}>
+                    <Text style={styles.label}>Senha</Text>
+                    <View style={styles.passwordContainer}>
+                        <TextInput
+                            placeholder='Digite sua senha'
+                            style={styles.input}
+                            secureTextEntry={!isPasswordVisible}
+                            value={password}
+                            onChangeText={setPassword}
+                        />
+                        <TouchableOpacity style={styles.eyeIcon} onPress={togglePasswordVisibility}>
+                            <Text>{isPasswordVisible ? '👁️' : '🙈'}</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                {wrongInput && <Text style={styles.errorMessage}>{mensagem}</Text>}
+                <TouchableOpacity style={styles.submitButton} onPress={handleLogin}>
+                    <Text style={styles.buttonTextEnter}>Entrar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.backButton} onPress={ toHome }>
+                    <Text style={styles.buttonText}>Voltar para a Home</Text>
                 </TouchableOpacity>
             </View>
-        </View>
-    )
-}
+        </>
+    );
+};
 
 const styles = StyleSheet.create({
-    loginContainer: {
+    formContainer: {
+        backgroundColor: '#000',
         padding: 20,
         borderRadius: 10,
-        alignItems: 'center',
-        flex: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 5,
+        textAlign: 'center',
+        maxWidth: 400,
+        position: 'relative',
+        zIndex: 1,
+        marginVertical: 0,
+        marginHorizontal: 'auto',
+        marginTop: 50,
     },
-    areaLogin: {
-        backgroundColor: '#fff',
-        borderRadius: 20,
+    passwordContainer: {
+        position: 'relative',
     },
-    loginTitle: {
-        fontSize: 35,
-        fontWeight: 'bold',
+    eyeIcon: {
+        position: 'absolute',
+        right: 10,
+        top: '45%',
+        transform: 'translateY(-50%)',
+        backgroundColor: 'transparent',
+        color: '#FFF',
+        fontSize: 20,
+        cursor: 'pointer',
+        width: 'auto',
+    },
+    logo: {
+        width: 120,
+        height: 'auto',
         marginBottom: 20,
-        color: '#fff',
+    },
+    formTitle: {
+        color: '#FFF',
+        fontSize: 24,
+        marginBottom: 20,
+    },
+    formGroup: {
+        marginBottom: 15,
+        textAlign: 'left',
+    },
+    label: {
+        color: '#FFF',
+        fontSize: 14,
+        marginBottom: 3,
     },
     input: {
         width: '100%',
         padding: 10,
-        marginVertical: 10,
-        borderColor: '#ccc',
+        fontSize: 14,
         borderWidth: 1,
+        borderColor: '#FFF',
         borderRadius: 5,
-        backgroundColor: '#fff',
+        backgroundColor: '#2C3E50',
+        color: '#FFF',
     },
-    button: {
+    buttonText: {
+        color: '#FFF',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    buttonTextEnter: {
+        color: '#2C3E50',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    submitButton: {
+        backgroundColor: '#FFF',
+        color: '#000',
+        fontWeight: 'bold',
         width: '100%',
-        backgroundColor: '#8A79AF',
-        padding: 15,
+        marginBottom: 10,
+        padding: 10,
         borderRadius: 5,
         alignItems: 'center',
         marginTop: 20,
     },
-    buttonText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
+    backButton: {
+        backgroundColor: '#2C3E50',
+        color: '#FFF',
+        border: '1px solid #FFF',
+        padding: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+        marginTop: 10,
     },
-    alertContainer: {
-        minHeight: 30,
-        justifyContent: 'center'
-    },
-    alertText: {
+    errorMessage: {
         color: 'red',
-        marginHorizontal: 'auto',
-        fontSize: 12
-    }
+        fontSize: 12,
+        marginBottom: 10,
+    },
 });
 
-export default FormLogin
+export default FormLogin;

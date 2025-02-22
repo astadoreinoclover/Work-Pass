@@ -1,27 +1,38 @@
 import React from 'react';
-import { View, StyleSheet, useWindowDimensions  } from 'react-native';
+import { View, StyleSheet, useWindowDimensions, ImageBackground } from 'react-native';
 import LogoSubTitle from '@/components/login/Logo-SubTitle';
 import FormLogin from '@/components/login/FormLogin';
 
-
 const LoginScreen = ({ navigation }: { navigation: any }) => {
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   
   return (
-    <View style={[styles.container, { flexDirection: width >= 768 ? 'row':'column'}]}>
-      <View style={{marginTop: width >=768 ? 0:30, marginBottom: width >=768 ? 0:30, width: width >= 768 ? width* 0.5 : width*0.9}}>
-        <LogoSubTitle />
+    <ImageBackground 
+      source={require('@/assets/images/login.jpg')} 
+      style={[styles.background, {width: width, height: height}]}
+    >
+      <View style={styles.overlay} />
+      <View style={[styles.container, { flexDirection: width >= 768 ? 'row':'column'}]}>
+
+        
+        <FormLogin navigation={navigation} />
       </View>
-      
-      <FormLogin navigation={navigation} />
-    </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Ajuste a opacidade conforme necessário
+  },
   container: {
     flex: 1,
-    backgroundColor: '#2C3E50', // Azul escuro
     justifyContent: 'center',
     alignItems: 'center'
   }
