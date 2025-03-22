@@ -130,9 +130,17 @@ const styles = StyleSheet.create({
         width: 'auto',
     },
     logo: {
-        width: 120,
-        height: 'auto',
+        fontSize: 20,
         marginBottom: 20,
+        color: '#fff',
+        borderColor: '#fff',
+        borderRadius: 10,
+        marginHorizontal: 'auto',
+        fontWeight: 'light',  
+        padding: 5,   
+        borderWidth: 2,
+        width:100,
+        textAlign: 'center' 
     },
     formTitle: {
         color: '#FFF',

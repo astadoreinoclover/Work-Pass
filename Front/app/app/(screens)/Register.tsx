@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, useWindowDimensions, Image, Text, Pressable, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, useWindowDimensions, Image, Text, Pressable, TouchableOpacity, ImageBackground } from 'react-native';
 import FormRegister from '@/components/register/RegisterComp';
 import { useNavigation } from 'expo-router';
 import { RootStackParamList } from '@/components/navigation/types';
@@ -11,7 +11,7 @@ export default function AddFuncionario() {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     const options = [
-      { label: 'Cadastrar', navigateTo: 'Register' },
+      { label: 'Home', navigateTo: 'Home' },
       { label: 'Login', navigateTo: 'Login' },
     ];
     return (
@@ -43,9 +43,17 @@ export default function AddFuncionario() {
                 ))}
             </View>
         </View>
-            <View style={{height: height * 0.1,display: 'flex', justifyContent: 'center', alignItems: 'flex-end'}}>
-                <FormRegister />
+            <ImageBackground 
+            source={require('@/assets/images/login.jpg')} 
+            style={[styles.background, {width: width, height: height}]}
+            >
+            <View style={styles.overlay} />
+            <View style={[styles.container, { flexDirection: width >= 768 ? 'row':'column'}]}>
+
+                
+                <FormRegister navigation={navigation} />
             </View>
+            </ImageBackground>
         </View>
     )
 }
@@ -60,14 +68,15 @@ const styles = StyleSheet.create({
       fontSize: 24,
     },
     header: {
-        backgroundColor: '#2c3e50',
+        backgroundColor: 'transparent',
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 25,
         position: 'absolute',
-        top: 0
+        top: 0,
+        zIndex:99
     },
     logo: {
         width: 100,
@@ -87,5 +96,14 @@ const styles = StyleSheet.create({
     },
     optionHover: {
         color: '#1abc9c',
+    },
+    background: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    overlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', 
     },
 });

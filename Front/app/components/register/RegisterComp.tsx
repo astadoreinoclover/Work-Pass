@@ -182,6 +182,7 @@ export default function FormRegister() {
     };
 
     return (
+        <View style={[styles.formContainer, { width: width >= 768 ? 700 : '100%' }]}>
         <View style={[styles.posicao, { width: width >= 768 ? width * 0.5 : width * 0.9, paddingTop:50}]}>
             <Text style={[styles.title, { fontSize: width >= 768 ? 30 : 22 }]}>Cadastro de Empresa</Text>
 
@@ -237,15 +238,36 @@ export default function FormRegister() {
                 }}
             />
         </View>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
+    formContainer: {
+        backgroundColor: '#000',
+        padding: 20,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 5,
+        textAlign: 'center',
+        maxWidth: 700,
+        position: 'relative',
+        zIndex: 1,
+        marginVertical: 0,
+        marginHorizontal: 'auto',
+        marginTop: 50,
+        flex:1,
+        justifyContent:'center',
+        alignItems: 'center'
+    },
     posicao: {
         position: 'relative',
     },
     title: {
-        color: '#2C3E50',
+        color: '#fff',
         fontWeight: 'bold',
         marginBottom: 20,
         textAlign: 'center',
