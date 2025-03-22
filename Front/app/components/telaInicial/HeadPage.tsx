@@ -27,7 +27,7 @@ const HeadPage = () => {
   }, [width]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {width: width*0.95}]}>
       <View style={[styles.navbar, isMenuOpen && styles.expanded]}>
         <Image source={require('@/assets/images/Logo.png')} style={styles.navLogo} />
         
@@ -40,22 +40,22 @@ const HeadPage = () => {
         {width >= 1024 && (
           <View style={styles.navbarmenus}>
             <TouchableOpacity onPress={() => {}} style={ {marginHorizontal: 7} }>
-              <Text style={[{ fontSize: 18, fontWeight: 'semibold', color: '#2c3e50'}]}>Funcionalidades</Text>
+              <Text style={[{ fontSize: 15, fontWeight: 'semibold', color: '#2c3e50'}]}>Funcionalidades</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {}} style={ {marginHorizontal: 7} }>
-              <Text style={[{ fontSize: 18, fontWeight: 'semibold', color: '#2c3e50'}]}>Planos</Text>
+              <Text style={[{ fontSize: 15, fontWeight: 'semibold', color: '#2c3e50'}]}>Planos</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {}} style={ {marginHorizontal: 7} }>
-              <Text style={[{ fontSize: 18, fontWeight: 'semibold', color: '#2c3e50'}]}>Desenvolvedores</Text>
+              <Text style={[{ fontSize: 15, fontWeight: 'semibold', color: '#2c3e50'}]}>Desenvolvedores</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {}} style={ {marginHorizontal: 7} }>  
-              <Text style={[{ fontSize: 18, fontWeight: 'semibold', color: '#2c3e50'}]}>Fale conosco</Text>
+              <Text style={[{ fontSize: 15, fontWeight: 'semibold', color: '#2c3e50'}]}>Fale conosco</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={goToLogin} style={ {marginHorizontal: 10} }>
-              <Text style={[{ fontSize: 22, fontWeight: 'bold', color: '#2c3e50' }]}>Login</Text>
+              <Text style={[{ fontSize: 18, fontWeight: 'bold', color: '#2c3e50' }]}>Login</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={goToSignup} style={ {marginHorizontal: 10} }>
-              <Text style={[{ fontSize: 22, fontWeight: 'bold', color: '#2c3e50' }]}>Cadastro</Text>
+              <Text style={[{ fontSize: 18, fontWeight: 'bold', color: '#2c3e50' }]}>Cadastro</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -95,6 +95,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f4f4f4',
     alignItems: 'center',
+    marginHorizontal: 'auto',
+    borderRadius: 10,
+    marginTop: 10
   },
   navbar: {
     position: 'absolute',
@@ -108,6 +111,8 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#fff',
     elevation: 5,
+    borderRadius: 10, 
+    height: 99.2
   },
   expanded: {
     backgroundColor: '#2c3e50',
@@ -133,6 +138,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 75,
     right: 0,
+    borderBottomEndRadius: 10,
+    borderBottomStartRadius: 10
   },
   navLink: {
     marginVertical: 10,

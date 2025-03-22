@@ -5,14 +5,14 @@ import { RootStackParamList } from '@/components/navigation/types';
 
 const HeroPage = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { height } = useWindowDimensions();
+  const { height, width } = useWindowDimensions();
 
   const goToSignup = () => {
     navigation.navigate('Register');
   };
 
   return (
-    <View style={[styles.container, { minHeight: height * 0.5 }]}>
+    <View style={[styles.container, { minHeight: height * 0.75, width: width*0.95 }]}>
       <Image
         source={{ uri: 'https://blog.centralserver.com.br/wp-content/uploads/2018/05/post-gamificacao.png' }}
         style={styles.backgroundImage}
@@ -36,7 +36,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative',
-    top: 100,
+    top: 110,
+    marginHorizontal: 'auto',
+    borderRadius: 10
   },
   backgroundImage: {
     width: '100%',
@@ -45,6 +47,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     resizeMode: 'cover',
+    borderRadius: 10
   },
   overlay: {
     flex: 1,
@@ -52,6 +55,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     padding: 20,
+    borderRadius: 10
   },
   title: {
     fontSize: 24,

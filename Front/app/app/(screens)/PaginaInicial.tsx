@@ -1,24 +1,32 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, useWindowDimensions } from 'react-native';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from '@/components/navigation/types';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import HeadPage from '@/components/telaInicial/HeadPage';
 import HeroPage from '@/components/telaInicial/HeroPage';
+import DevPage from '@/components/telaInicial/DevPage';
+import PlanPage from '@/components/telaInicial/PlanPage'
 
 const HomePage = () => {
   return (
-    <View>
+    <ScrollView>
       <View style={ styles.prioridade}>
         <HeadPage />
       </View>
-      <HeroPage />
-    </View>
+      <View>
+        <HeroPage />
+      </View>
+      <View>
+        <DevPage />
+      </View>
+      <View>
+        <PlanPage />
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   prioridade: {
-    zIndex: 999,
+    zIndex: 999, 
   },
 });
 
