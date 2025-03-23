@@ -34,7 +34,7 @@ const DevPage = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 140,
+    marginTop: 50,
     marginBottom: 30,
     backgroundColor: '#fff',
     marginHorizontal: 'auto',
