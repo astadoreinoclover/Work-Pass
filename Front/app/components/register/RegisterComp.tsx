@@ -14,7 +14,7 @@ import AwesomeAlert from 'react-native-awesome-alerts';
 import InputCNPJ from '../Inputs/CnpjInput';
 
 export default function FormRegister() {
-    const { width } = useWindowDimensions();
+    const { width, height } = useWindowDimensions();
     const [currentStep, setCurrentStep] = useState(1);
     const totalSteps = 5;
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -182,8 +182,8 @@ export default function FormRegister() {
     };
 
     return (
-        <View style={[styles.formContainer, { width: width >= 768 ? 700 : '100%' }]}>
-        <View style={[styles.posicao, { width: width >= 768 ? width * 0.5 : width * 0.9, paddingTop:50}]}>
+        <View style={[styles.formContainer, { width: width >= 768 ? width * 0.5 : width * 0.95, maxHeight: width < 768 ? height * 0.6 : 'auto' }]}>
+        <View style={[styles.posicao, { width: width >= 768 ? width * 0.4 : width * 0.9, paddingTop:50}]}>
             <Text style={[styles.title, { fontSize: width >= 768 ? 30 : 22 }]}>Cadastro de Empresa</Text>
 
             <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
@@ -193,7 +193,7 @@ export default function FormRegister() {
             <View style={styles.buttonContainer}>
                 {currentStep > 1 && (
                     <TouchableOpacity
-                        style={[styles.button, { width: width >= 768 ? width * 0.2 : width * 0.3 }]}
+                        style={[styles.button, { width: width >= 768 ? width * 0.15 : width * 0.3 }]}
                         onPress={prevStep}
                     >
                         <Text style={styles.buttonText}>Anterior</Text>
@@ -201,7 +201,7 @@ export default function FormRegister() {
                 )}
                 <View style={styles.nextButtonContainer}>
                     <TouchableOpacity
-                        style={[styles.button, { width: width >= 768 ? width * 0.2 : width * 0.3 }]}
+                        style={[styles.button, { width: width >= 768 ? width * 0.15 : width * 0.3 }]}
                         onPress={currentStep < totalSteps ? nextStep : handleSubmit}
                     >
                         <Text style={styles.buttonText}>{currentStep < totalSteps ? 'Próximo' : 'Concluir'}</Text>
@@ -253,7 +253,6 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 5,
         textAlign: 'center',
-        maxWidth: 700,
         position: 'relative',
         zIndex: 1,
         marginVertical: 0,
@@ -282,6 +281,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginTop: 20,
+        marginBottom: 30,
     },
     nextButtonContainer: {
         flex: 1,
