@@ -89,9 +89,6 @@ const FormLogin = () => {
                 <TouchableOpacity style={styles.submitButton} onPress={handleLogin}>
                     <Text style={styles.buttonTextEnter}>Entrar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.backButton} onPress={ toHome }>
-                    <Text style={styles.buttonText}>Voltar para a Home</Text>
-                </TouchableOpacity>
             </View>
         </>
     );
