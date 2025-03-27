@@ -13,6 +13,7 @@ import { AuthContext } from '@/contexts/Auth';
 import AwesomeAlert from 'react-native-awesome-alerts';  
 import InputCNPJ from '../Inputs/CnpjInput';
 import PasswordDefinition from '../Inputs/SenhaCadastro';
+import PlanosExpansiveis from '../Inputs/Planos';
 
 export default function FormRegister() {
     const { width } = useWindowDimensions();
@@ -29,7 +30,8 @@ export default function FormRegister() {
     const [phone, setPhone] = useState('');
     const [dataNasc, setDataNasc] = useState('');
     const [cpf, setCpf] = useState('');
-    const [senha, setSenha] = useState({ senha: "", confirmacao: "" });;
+    const [senha, setSenha] = useState({ senha: "", confirmacao: "" });
+    const [planoEscolhido, setPlanoEscolhido] = useState(null);
 
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
@@ -71,6 +73,26 @@ export default function FormRegister() {
             setShowAlert(true);
             return;
         }
+        
+        const temMaiuscula = /[A-Z]/.test(senha.senha);
+        const temMinuscula = /[a-z]/.test(senha.senha);
+        const temNumero = /\d/.test(senha.senha);
+        const temEspecial = /[!@#$%^&*(),.?":{}|<>]/.test(senha.senha);
+        const temMaisde8 = senha.senha.length >= 8;
+
+        if (!temMaiuscula || !temMinuscula || !temNumero || !temEspecial || !temMaisde8) {
+            setAlertMessage('A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número, um caractere especial e ter no mínimo 8 caracteres.');
+            setShowAlert(true);
+            return;
+        }
+
+        if(senha.senha !== senha.confirmacao) {
+            setAlertMessage('As senhas devem ser iguais.');
+            setShowAlert(true);
+            return;
+        }
+
+        
 
         try {
             const responseEmpresa = await axios.post('http://localhost:3000/api/empresa', {
@@ -81,7 +103,7 @@ export default function FormRegister() {
             const response = await axios.post('http://localhost:3000/api/register', {
                 name: nome + " " + sobrenome,
                 email: email,
-                password: nome + "@@@" + ano,
+                password: senha.senha,
                 funcao: "Admin Geral",
                 cpf: cpf,
                 numero: phone,
@@ -97,7 +119,7 @@ export default function FormRegister() {
 
             if(response.status === 201 && responseGaming.status ===201) {
                 // navigation.navigate('Login');
-                const authData = await authContext.login(email, nome + "@@@" + ano);
+                const authData = await authContext.login(email,senha.senha);
             }
         } catch (error) {
             setAlertMessage(error.response?.data?.error || 'Erro ao criar usuário');
@@ -129,8 +151,7 @@ export default function FormRegister() {
             case 2:
                 return (
                     <View style={styles.containerInputs}>
-                        
-
+                        <PlanosExpansiveis onSelecionarPlano={setPlanoEscolhido} />
                     </View>
                 );
             case 3:
