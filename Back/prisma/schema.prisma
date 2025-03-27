@@ -32,7 +32,6 @@ model User {
   role      Role     @default(USER)
   id_empresa Int
   empresa   Empresa  @relation(fields: [id_empresa], references: [id])
-  enderecos Endereco[]
   logs      Log[]
   gaming    Gaming[]
   tasks     UserTask[]
@@ -40,19 +39,6 @@ model User {
   habilidades HabilidadeUser[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-model Endereco {
-  id        Int    @id @default(autoincrement())
-  id_user   Int
-  bairro    String
-  numero    String
-  rua       String
-  complemento String
-  cidade    String
-  estado    String
-  pais      String
-  user      User   @relation(fields: [id_user], references: [id])
 }
 
 model Log {

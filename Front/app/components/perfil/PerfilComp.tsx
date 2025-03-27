@@ -15,9 +15,6 @@ const UserProfile: React.FC = () => {
     const [numero, setNumero] = useState<string | null>(null)
     const [departament, setDepartament] = useState<string | null>(null)
     const [funcao, setFuncao] = useState<string | null>(null)
-    const [endereco, setEndereco] = useState<string | null>(null)
-    const [cidade, setCidade] = useState<string | null>(null)
-    const [estado, setEstado] = useState<string | null>(null)
 
     useEffect(() => {
         setEmail(authContext.authData?.email || null);
@@ -27,9 +24,6 @@ const UserProfile: React.FC = () => {
         setNumero(authContext.authData?.numero || null)
         setDepartament(authContext.authData?.departamento || null)
         setFuncao(authContext.authData?.funcao || null)
-        setCidade(authContext.authData?.cidade || null)
-        setEndereco(authContext.authData?.endereco || null)
-        setEstado(authContext.authData?.estado || null)
     }, [authContext.authData]);
 
     return (
@@ -50,11 +44,6 @@ const UserProfile: React.FC = () => {
                     <ItemComponent title="Data de Nascimento" content={dataNas} />
                     <ItemComponent title="Departamento" content={departament} />
                     <ItemComponent title="Função" content={funcao} />
-                </View>
-                <View style={[styles.areaItem, {height: heigthCards, width: widthCards}]}>
-                    <ItemComponent title="Endereço" content={endereco} />
-                    <ItemComponent title="Cidade" content={cidade} />
-                    <ItemComponent title="Estado" content={estado} />
                 </View>
             </View>
         </ScrollView>

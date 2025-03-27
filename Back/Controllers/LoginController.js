@@ -27,11 +27,6 @@ const login = async (req, res) => {
             expiresIn: '12h',
         });
 
-        const endereco = await prisma.endereco.findFirst({
-            where: { id_user: parseInt(user.id) },
-        });
-        if (!endereco) return res.status(404).json({ error: 'Endereço não encontrado' });
-
         return res.json({
             message: 'Login bem-sucedido',
             token: token,
@@ -45,9 +40,6 @@ const login = async (req, res) => {
             dataNascimento: user.dataNascimento,
             role: user.role,
             id_empresa: user.id_empresa,
-            endereco: `${endereco.rua} ${endereco.numero}, ${endereco.bairro}`,
-            cidade: endereco.cidade,
-            estado: `${endereco.estado} - ${endereco.pais}`
         });
     } catch (error) {
         return res.status(500).json({ message: 'Erro no servidor', error: error.message });

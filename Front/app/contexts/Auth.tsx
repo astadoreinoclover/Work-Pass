@@ -18,9 +18,6 @@ import axios from 'axios';
     role: string;
     funcao: string;
     id_empresa: number;
-    endereco: string;
-    cidade: string;
-    estado: string;
 }
 
 interface AuthContextData {

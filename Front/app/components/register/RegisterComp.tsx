@@ -92,8 +92,6 @@ export default function FormRegister() {
             return;
         }
 
-        
-
         try {
             const responseEmpresa = await axios.post('http://localhost:3000/api/empresa', {
                 nome: empresaName,
@@ -123,6 +121,7 @@ export default function FormRegister() {
             }
         } catch (error) {
             setAlertMessage(error.response?.data?.error || 'Erro ao criar usuário');
+            console.log(empresaName, cnpj)
             setShowAlert(true);
         }
     };
