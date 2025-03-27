@@ -12,9 +12,10 @@ import axios from 'axios';
 import { AuthContext } from '@/contexts/Auth';
 import AwesomeAlert from 'react-native-awesome-alerts';  
 import InputCNPJ from '../Inputs/CnpjInput';
+import PasswordDefinition from '../Inputs/SenhaCadastro';
 
 export default function FormRegister() {
-    const { width, height } = useWindowDimensions();
+    const { width } = useWindowDimensions();
     const [currentStep, setCurrentStep] = useState(1);
     const totalSteps = 5;
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -26,15 +27,9 @@ export default function FormRegister() {
     const [sobrenome, setSobrenome] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
-    const [neighborhood, setNeighborhood] = useState('');
-    const [street, setStreet] = useState('');
-    const [complement, setComplement] = useState('');
-    const [houseNumber, setHouseNumber] = useState('');
     const [dataNasc, setDataNasc] = useState('');
     const [cpf, setCpf] = useState('');
-    const [cidade, setCidade] = useState('');
-    const [estado, setEstado] = useState('');
-    const [pais, setPais] = useState('');
+    const [senha, setSenha] = useState({ senha: "", confirmacao: "" });;
 
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
@@ -71,7 +66,7 @@ export default function FormRegister() {
             return;
         }
 
-        if (!nome || !sobrenome || !email || !phone || !neighborhood || !street || !complement || !houseNumber || !dataNasc || !cpf) {
+        if (!nome || !sobrenome || !email || !phone || !dataNasc || !cpf) {
             setAlertMessage('Por favor, preencha todos os campos.');
             setShowAlert(true);
             return;
@@ -96,22 +91,11 @@ export default function FormRegister() {
                 id_empresa: responseEmpresa.data.id,
             });
 
-            const responseLocation = await axios.post('http://localhost:3000/api/createEndereco', {
-                id_user: response.data.id,
-                bairro: neighborhood,
-                numero: houseNumber,
-                rua: street,
-                complemento: complement,
-                cidade: cidade,
-                estado: estado,
-                pais: pais
-            })
-
             const responseGaming = await axios.post('http://localhost:3000/api/gaming', {
                 user_id: response.data.id
             })
 
-            if(response.status === 201 && responseLocation.status === 201 && responseGaming.status ===201) {
+            if(response.status === 201 && responseGaming.status ===201) {
                 // navigation.navigate('Login');
                 const authData = await authContext.login(email, nome + "@@@" + ano);
             }
@@ -145,35 +129,30 @@ export default function FormRegister() {
             case 2:
                 return (
                     <View style={styles.containerInputs}>
-                        <InputAddFunc label="Nome" value={nome} setValue={setNome} />
-                        <InputAddFunc label="Sobrenome" value={sobrenome} setValue={setSobrenome} />
-                        <InputDate label="Data Nasc." value={dataNasc} setValue={setDataNasc} />
-                        <InputCPF label="CPF" value={cpf} setValue={setCpf} />
+                        
 
                     </View>
                 );
             case 3:
                 return (
                     <View style={styles.containerInputs}>
-                        <InputAddFunc label="Email" value={email} setValue={setEmail} />
-                        <InputPhone label="Telefone" value={phone} setValue={setPhone} />
+                        <InputAddFunc label="Nome" value={nome} setValue={setNome} />
+                        <InputAddFunc label="Sobrenome" value={sobrenome} setValue={setSobrenome} />
+                        <InputDate label="Data Nasc." value={dataNasc} setValue={setDataNasc} />
+                        <InputCPF label="CPF" value={cpf} setValue={setCpf} />
                     </View>
                 );
             case 4:
                 return (
                     <View style={styles.containerInputs}>
-                        <InputAddFunc label="Bairro" value={neighborhood} setValue={setNeighborhood} />
-                        <InputAddFunc label="Rua" value={street} setValue={setStreet} />
-                        <InputAddFunc label="Complemento" value={complement} setValue={setComplement} />
-                        <InputAddFunc label="Número" value={houseNumber} setValue={setHouseNumber} />
+                        <InputAddFunc label="Email" value={email} setValue={setEmail} />
+                        <InputPhone label="Telefone" value={phone} setValue={setPhone} />
                     </View>
                 );
             case 5:
                 return (
                     <View style={styles.containerInputs}>
-                        <InputAddFunc label="Cidade" value={cidade} setValue={setCidade} />
-                        <InputAddFunc label="Estado" value={estado} setValue={setEstado} />
-                        <InputAddFunc label="Pais" value={pais} setValue={setPais} />
+                        <PasswordDefinition senha={senha} setSenha={setSenha} />
                     </View>
                 );
             default:
@@ -182,9 +161,9 @@ export default function FormRegister() {
     };
 
     return (
-        <View style={[styles.formContainer, { width: width >= 768 ? width * 0.5 : width * 0.95, maxHeight: width < 768 ? height * 0.6 : 'auto' }]}>
-        <View style={[styles.posicao, { width: width >= 768 ? width * 0.4 : width * 0.9, paddingTop:50}]}>
-            <Text style={[styles.title, { fontSize: width >= 768 ? 30 : 22 }]}>Cadastro de Empresa</Text>
+        <View style={[styles.formContainer, { width: width >= 1024 ? width*0.5 : width*0.95, maxHeight: 700 }]}>
+        <View style={[styles.posicao, { width: width >= 1024 ? width * 0.45 : width * 0.9, paddingTop:50}]}>
+            <Text style={[styles.title, { fontSize: width >= 1024 ? 30 : 22 }]}>Cadastro de Empresa</Text>
 
             <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
 
@@ -193,7 +172,7 @@ export default function FormRegister() {
             <View style={styles.buttonContainer}>
                 {currentStep > 1 && (
                     <TouchableOpacity
-                        style={[styles.button, { width: width >= 768 ? width * 0.15 : width * 0.3 }]}
+                        style={[styles.button, { width: width >= 768 ? width * 0.1 : width * 0.3, maxWidth: 150 }]}
                         onPress={prevStep}
                     >
                         <Text style={styles.buttonText}>Anterior</Text>
@@ -201,7 +180,7 @@ export default function FormRegister() {
                 )}
                 <View style={styles.nextButtonContainer}>
                     <TouchableOpacity
-                        style={[styles.button, { width: width >= 768 ? width * 0.15 : width * 0.3 }]}
+                        style={[styles.button, { width: width >= 768 ? width * 0.1 : width * 0.3, maxWidth: 150 }]}
                         onPress={currentStep < totalSteps ? nextStep : handleSubmit}
                     >
                         <Text style={styles.buttonText}>{currentStep < totalSteps ? 'Próximo' : 'Concluir'}</Text>
@@ -244,7 +223,7 @@ export default function FormRegister() {
 
 const styles = StyleSheet.create({
     formContainer: {
-        backgroundColor: '#000',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
         padding: 20,
         borderRadius: 10,
         shadowColor: '#000',
@@ -253,6 +232,7 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 5,
         textAlign: 'center',
+        maxWidth: 700,
         position: 'relative',
         zIndex: 1,
         marginVertical: 0,
@@ -264,6 +244,7 @@ const styles = StyleSheet.create({
     },
     posicao: {
         position: 'relative',
+        maxWidth: 600
     },
     title: {
         color: '#fff',
@@ -275,13 +256,13 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'column',
         gap: 10,
+        maxWidth: 600
     },
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginTop: 20,
-        marginBottom: 30,
     },
     nextButtonContainer: {
         flex: 1,

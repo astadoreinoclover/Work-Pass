@@ -68,6 +68,7 @@ const FormLogin = () => {
                         autoCapitalize="none"
                         value={email}
                         onChangeText={setEmail}
+                        placeholderTextColor="#ccc"
                     />
                 </View>
                 <View style={styles.formGroup}>
@@ -79,6 +80,7 @@ const FormLogin = () => {
                             secureTextEntry={!isPasswordVisible}
                             value={password}
                             onChangeText={setPassword}
+                            placeholderTextColor="#ccc"
                         />
                         <TouchableOpacity style={styles.eyeIcon} onPress={togglePasswordVisibility}>
                             <Text>{isPasswordVisible ? '👁️' : '🙈'}</Text>
@@ -96,7 +98,7 @@ const FormLogin = () => {
 
 const styles = StyleSheet.create({
     formContainer: {
-        backgroundColor: '#000',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
         padding: 20,
         borderRadius: 10,
         shadowColor: '#000',
@@ -157,11 +159,9 @@ const styles = StyleSheet.create({
         width: '100%',
         padding: 10,
         fontSize: 14,
-        borderWidth: 1,
-        borderColor: '#FFF',
-        borderRadius: 5,
         backgroundColor: '#2C3E50',
         color: '#FFF',
+        borderRadius: 25, 
     },
     buttonText: {
         color: '#FFF',
@@ -183,15 +183,6 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         alignItems: 'center',
         marginTop: 20,
-    },
-    backButton: {
-        backgroundColor: '#2C3E50',
-        color: '#FFF',
-        border: '1px solid #FFF',
-        padding: 10,
-        borderRadius: 5,
-        alignItems: 'center',
-        marginTop: 10,
     },
     errorMessage: {
         color: 'red',
