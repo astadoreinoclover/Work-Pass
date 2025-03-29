@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, StyleSheet, useWindowDimensions, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, StyleSheet, useWindowDimensions, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import InputWithIcon from './RenderForm';
-import EmailIcon from './icons/EmailIcon';
-import PhoneIcon from './icons/PhoneIcon';
 import { AuthContext } from '@/contexts/Auth';
 
 export default function FormEditarDados() {
@@ -11,12 +10,26 @@ export default function FormEditarDados() {
 
     const [email, setEmail] = useState<string | null>(null);
     const [phone, setPhone] = useState<string | null>(null);
+    const [photo, setPhoto] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         setEmail(authContext.authData?.email || '');
         setPhone(authContext.authData?.numero || '');
     }, [authContext.authData]);
+
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 4],
+            quality: 1,
+        });
+
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+            setPhoto(result.assets[0].uri);
+        }
+    };
 
     const handleSubmit = () => {
         if (!email || !phone) {
@@ -28,6 +41,7 @@ export default function FormEditarDados() {
         console.log({
             email,
             phone,
+            photo,
         });
     };
 
@@ -39,15 +53,23 @@ export default function FormEditarDados() {
                 </Text>
                 {error && <Text style={styles.errorText}>{error}</Text>}
                 <View style={[styles.containerInputs, { flexDirection: width >= 768 ? 'row' : 'column' }]}>
-                    <View style={{ padding: 5, width: width >= 768 ? width * 0.4 : width * 0.9 }}>
-                        <Text>Email</Text>
-                        <InputWithIcon label="Email" IconComponent={EmailIcon} value={email || ''} setValue={setEmail} />
-                        <Text>Número (Celular)</Text>
-                        <InputWithIcon label="Número (Celular)" IconComponent={PhoneIcon} value={phone || ''} setValue={setPhone} />
+                    <View style={{ padding: 5, width: width >= 768 ? width * 0.3 : width * 0.9 }}>
+                        <Text style={{ color: '#fff' }}>Email</Text>
+                        <InputWithIcon label="Email" value={email || ''} setValue={setEmail} />
+                    </View>
+                    <View style={{ padding: 5, width: width >= 768 ? width * 0.3 : width * 0.9 }}>
+                        <Text style={{ color: '#fff' }}>Número (Celular)</Text>
+                        <InputWithIcon label="Número (Celular)" value={phone || ''} setValue={setPhone} />
                     </View>
                 </View>
+                <TouchableOpacity onPress={pickImage} style={styles.photoContainer}>
+                    {photo ? (
+                        <Image source={{ uri: photo }} style={styles.image} />
+                    ) : (
+                        <Text style={styles.photoPlaceholder}>Selecionar Foto</Text>
+                    )}
+                </TouchableOpacity>
                 <TouchableOpacity
-                    testID="loginButton"
                     style={[styles.button, { padding: width >= 768 ? 15 : 10, width: width >= 768 ? width * 0.3 : width * 0.8 }]}
                     onPress={handleSubmit}
                 >
@@ -61,15 +83,19 @@ export default function FormEditarDados() {
 const styles = StyleSheet.create({
     posicao: {
         position: 'relative',
+        backgroundColor: 'rgba(0,0,0,0.9)',
+        padding: 20,
+        borderRadius: 25
     },
     title: {
-        color: '#2C3E50',
+        color: '#fff',
         margin: 'auto',
         fontWeight: 'bold',
         marginBottom: 20,
     },
     containerInputs: {
         display: 'flex',
+        justifyContent: 'space-around'
     },
     button: {
         backgroundColor: '#8A79AF',
@@ -87,5 +113,26 @@ const styles = StyleSheet.create({
     errorText: {
         color: 'red',
         marginBottom: 10,
+    },
+    photoContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 20,
+        padding: 10,
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        marginHorizontal: 'auto',
+        backgroundColor: '#2C3E50'
+    },
+    photoPlaceholder: {
+        fontSize: 16,
+        color: '#ccc',
+        textAlign: 'center'
+    },
+    image: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
     },
 });

@@ -14,7 +14,6 @@ const InputAddFunc: React.FC<InputAddFuncProps> = ({ label, value, setValue }) =
         <View>
             <Text style={styles.label}>{label}</Text>
                 <View style={styles.inputContainer}>
-                    
                     <TextInput
                         style={[styles.input, { padding: width >= 768 ? 10 : 5 }]}
                         keyboardType="default"

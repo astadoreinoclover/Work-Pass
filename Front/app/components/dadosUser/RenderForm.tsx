@@ -1,19 +1,17 @@
 import React from 'react';
 import { View, TextInput, StyleSheet, useWindowDimensions } from 'react-native';
 
-interface InputWithIconProps {
+interface InputProps {
     label: string;
-    IconComponent: React.FC;
     value: string;
     setValue: (value: string) => void;
 }
 
-const InputWithIcon: React.FC<InputWithIconProps> = ({ label, IconComponent, value, setValue }) => {
+const InputWithIcon: React.FC<InputProps> = ({ label, value, setValue }) => {
     const { width } = useWindowDimensions();
 
     return (
         <View style={styles.inputContainer}>
-            <View style={styles.containerIcon}><IconComponent /></View>
             <TextInput
                 style={[styles.input, { padding: width >= 768 ? 10 : 5 }]}
                 keyboardType="default"
@@ -21,6 +19,7 @@ const InputWithIcon: React.FC<InputWithIconProps> = ({ label, IconComponent, val
                 value={value} 
                 onChangeText={setValue}
                 placeholder={value}
+                placeholderTextColor="#ccc"
             />
         </View>
     );
@@ -30,20 +29,16 @@ const styles = StyleSheet.create({
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 10,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        borderRadius: 5,
-        backgroundColor: '#fff',
-    },
-    containerIcon: {
-        paddingLeft:3
+        backgroundColor: '#2C3E50',
+        borderRadius: 50, 
+        marginBottom: 10,
     },
     input: {
         flex: 1,
-        padding: 10,
-        marginLeft: 10,
-        height: 40,
+        color: '#fff',
+        fontSize: 16,
+        borderRadius: 50,
+        padding:10
     },
 });
 
