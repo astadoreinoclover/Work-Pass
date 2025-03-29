@@ -85,7 +85,7 @@ export default function FormAddFunc() {
             return;
         }
 
-        if (!nome || !sobrenome || !email || !phone || !neighborhood || !street || !complement || !houseNumber || !dataNasc || !cpf) {
+        if (!nome || !sobrenome || !email || !phone || !dataNasc || !cpf) {
             setAlertMessage('Por favor, preencha todos os campos.');
             setShowAlert(true);
             return;
@@ -105,22 +105,11 @@ export default function FormAddFunc() {
                 id_empresa: authContext.authData?.id_empresa,
             });
 
-            const responseLocation = await axios.post('http://localhost:3000/api/createEndereco', {
-                id_user: response.data.id,
-                bairro: neighborhood,
-                numero: houseNumber,
-                rua: street,
-                complemento: complement,
-                cidade: cidade,
-                estado: estado,
-                pais: pais
-            })
-
             const responseGaming = await axios.post('http://localhost:3000/api/gaming', {
                 user_id: response.data.id
             })
 
-            if(response.status === 201 && responseLocation.status === 201 && responseGaming.status ===201) {
+            if(response.status === 201 && responseGaming.status ===201) {
                 navigation.navigate('Funcionarios');
             }
         } catch (error) {
@@ -148,8 +137,6 @@ export default function FormAddFunc() {
                     <View style={styles.containerInputs}>
                         <InputAddFunc label="Nome" value={nome} setValue={setNome} />
                         <InputAddFunc label="Sobrenome" value={sobrenome} setValue={setSobrenome} />
-                        <InputDate label="Data Nasc." value={dataNasc} setValue={setDataNasc} />
-                        <InputCPF label="CPF" value={cpf} setValue={setCpf} />
                         {authContext.authData?.role === "MANAGER" && (
                             <View style={styles.switchContainer}>
                                 <Text style={styles.label}>Você está cadastrando um Gerente?</Text>
@@ -167,8 +154,20 @@ export default function FormAddFunc() {
             case 2:
                 return (
                     <View style={styles.containerInputs}>
+                        <InputDate label="Data Nasc." value={dataNasc} setValue={setDataNasc} />
+                        <InputCPF label="CPF" value={cpf} setValue={setCpf} />
+                    </View>
+                );
+            case 3:
+                return (
+                    <View style={styles.containerInputs}>
                         <InputAddFunc label="Email" value={email} setValue={setEmail} />
                         <InputPhone label="Telefone" value={phone} setValue={setPhone} />
+                    </View>
+                );
+            case 4:
+                return (
+                    <View style={styles.containerInputs}>
                         {authContext.authData?.role === "MANAGER" && (
                             <>
                                <InputAddFunc 
@@ -201,23 +200,6 @@ export default function FormAddFunc() {
                         {!isGerente && (
                             <InputAddFunc label="Função" value={funcao} setValue={setFuncao} />
                         )}
-                    </View>
-                );
-            case 3:
-                return (
-                    <View style={styles.containerInputs}>
-                        <InputAddFunc label="Bairro" value={neighborhood} setValue={setNeighborhood} />
-                        <InputAddFunc label="Rua" value={street} setValue={setStreet} />
-                        <InputAddFunc label="Complemento" value={complement} setValue={setComplement} />
-                        <InputAddFunc label="Número" value={houseNumber} setValue={setHouseNumber} />
-                    </View>
-                );
-            case 4:
-                return (
-                    <View style={styles.containerInputs}>
-                        <InputAddFunc label="Cidade" value={cidade} setValue={setCidade} />
-                        <InputAddFunc label="Estado" value={estado} setValue={setEstado} />
-                        <InputAddFunc label="Pais" value={pais} setValue={setPais} />
                     </View>
                 );
             default:
@@ -286,9 +268,12 @@ export default function FormAddFunc() {
 const styles = StyleSheet.create({
     posicao: {
         position: 'relative',
+        backgroundColor: 'rgba(0,0,0,0.9)',
+        padding: 20,
+        borderRadius:25
     },
     title: {
-        color: '#2C3E50',
+        color: '#fff',
         fontWeight: 'bold',
         marginBottom: 20,
         textAlign: 'center',
@@ -326,7 +311,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 18,
-        color: '#2C3E50',
+        color: '#fff',
         marginRight: 10,
     },
     employeeItem: {
@@ -345,3 +330,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
       },
 });
+
+function rgba(arg0: number, arg1: number, arg2: number, arg3: number): any {
+    throw new Error('Function not implemented.');
+}

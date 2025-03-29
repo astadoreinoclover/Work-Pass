@@ -3,10 +3,6 @@ import { View, StyleSheet, useWindowDimensions, Text, TouchableOpacity, ScrollVi
 import InputWithIcon from './RenderForm';
 import EmailIcon from './icons/EmailIcon';
 import PhoneIcon from './icons/PhoneIcon';
-import NeighborhoodIcon from './icons/NeighborhoodIcon';
-import StreetIcon from './icons/StreetIcon';
-import ComplementIcon from './icons/ComplementIcon';
-import HouseNumberIcon from './icons/HouseNumberIcon';
 import { AuthContext } from '@/contexts/Auth';
 
 export default function FormEditarDados() {
@@ -15,10 +11,6 @@ export default function FormEditarDados() {
 
     const [email, setEmail] = useState<string | null>(null);
     const [phone, setPhone] = useState<string | null>(null);
-    const [neighborhood, setNeighborhood] = useState('');
-    const [street, setStreet] = useState('');
-    const [complement, setComplement] = useState('');
-    const [houseNumber, setHouseNumber] = useState('');
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -27,7 +19,7 @@ export default function FormEditarDados() {
     }, [authContext.authData]);
 
     const handleSubmit = () => {
-        if (!email || !phone || !neighborhood || !street || !houseNumber) {
+        if (!email || !phone) {
             setError('Por favor, preencha todos os campos obrigatórios.');
             return;
         }
@@ -36,10 +28,6 @@ export default function FormEditarDados() {
         console.log({
             email,
             phone,
-            neighborhood,
-            street,
-            complement,
-            houseNumber,
         });
     };
 
@@ -56,16 +44,6 @@ export default function FormEditarDados() {
                         <InputWithIcon label="Email" IconComponent={EmailIcon} value={email || ''} setValue={setEmail} />
                         <Text>Número (Celular)</Text>
                         <InputWithIcon label="Número (Celular)" IconComponent={PhoneIcon} value={phone || ''} setValue={setPhone} />
-                        <Text>Bairro</Text>
-                        <InputWithIcon label="Bairro" IconComponent={NeighborhoodIcon} value={neighborhood} setValue={setNeighborhood} />
-                    </View>
-                    <View style={{ padding: 5, width: width >= 768 ? width * 0.4 : width * 0.9 }}>
-                        <Text>Rua</Text>
-                        <InputWithIcon label="Rua" IconComponent={StreetIcon} value={street} setValue={setStreet} />
-                        <Text>Complemento</Text>
-                        <InputWithIcon label="Complemento" IconComponent={ComplementIcon} value={complement} setValue={setComplement} />
-                        <Text>Número da Casa</Text>
-                        <InputWithIcon label="Número da Casa" IconComponent={HouseNumberIcon} value={houseNumber} setValue={setHouseNumber} />
                     </View>
                 </View>
                 <TouchableOpacity

@@ -54,7 +54,7 @@ exports.getUserById = async (req, res) => {
     try {
         const user = await prisma.user.findUnique({
             where: { id: parseInt(id) },
-            include: { empresa: true, enderecos: true, logs: true, gaming: true, tasks: true, carreira: true, habilidades: true },
+            include: { empresa: true, logs: true, gaming: true, tasks: true, carreira: true, habilidades: true },
         });
         if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
         res.json(user);
@@ -75,7 +75,7 @@ exports.getUsersByRoleAndDepartment = async (req, res) => {
 
         const users = await prisma.user.findMany({
             where: whereClause,
-            include: { empresa: true, enderecos: true },
+            include: { empresa: true },
         });
 
         if (!users.length) {
@@ -111,9 +111,6 @@ exports.deleteUser = async (req, res) => {
     const { id } = req.params;
 
   try {
-    await prisma.endereco.deleteMany({
-      where: { id_user: Number(id) },
-    });
 
     await prisma.userTask.deleteMany({
         where: { user_id: Number(id) },
