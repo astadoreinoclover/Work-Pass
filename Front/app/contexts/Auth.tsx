@@ -18,6 +18,7 @@ import axios from 'axios';
     role: string;
     funcao: string;
     id_empresa: number;
+    foto: string;
 }
 
 interface AuthContextData {

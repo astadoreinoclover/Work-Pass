@@ -40,6 +40,7 @@ const login = async (req, res) => {
             dataNascimento: user.dataNascimento,
             role: user.role,
             id_empresa: user.id_empresa,
+            foto: user.foto
         });
     } catch (error) {
         return res.status(500).json({ message: 'Erro no servidor', error: error.message });

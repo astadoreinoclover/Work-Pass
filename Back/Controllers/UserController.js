@@ -63,6 +63,35 @@ exports.getUserById = async (req, res) => {
     }
 };
 
+exports.updateUserPhoto = async (req, res) => {
+    const { id } = req.params;
+    const foto = req.file ? `/uploads/${req.file.filename}` : null;
+
+    console.log("ID recebido:", id);
+    console.log("Arquivo recebido:", req.file);
+
+    try {
+      if (isNaN(Number(id))) {
+        return res.status(400).json({ error: "ID inválido" });
+      }
+
+      const userExists = await prisma.user.findUnique({ where: { id: Number(id) } });
+      if (!userExists) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      const user = await prisma.user.update({
+        where: { id: Number(id) },
+        data: { foto },
+      });
+
+      res.json(user);
+    } catch (error) {
+      console.error("Erro ao atualizar foto:", error);
+      res.status(500).json({ error: "Erro ao atualizar foto do usuário" });
+    }
+};
+
 exports.getUsersByRoleAndDepartment = async (req, res) => {
     const { role, departamento, id_empresa } = req.body;
 

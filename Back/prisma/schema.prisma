@@ -29,6 +29,7 @@ model User {
   departamento String
   funcao String 
   dataNascimento String
+  foto String?
   role      Role     @default(USER)
   id_empresa Int
   empresa   Empresa  @relation(fields: [id_empresa], references: [id])

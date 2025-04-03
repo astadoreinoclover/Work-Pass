@@ -9,6 +9,7 @@ const logController = require('../Controllers/LogsController.js');
 const loginController = require('../Controllers/LoginController.js');
 const userController = require('../Controllers/UserController.js');
 const authMiddleware = require('../Middlewares/AuthMiddleware.js');
+const upload = require("../Middlewares/uploadMiddleware");
 const emderecoController = require('../Controllers/EnderecoController.js')
 
 router.post('/ranking', taskController.getRanking)
@@ -25,6 +26,7 @@ router.get('/countStatus', userController.getTaskCountByEmployee)
 router.get('/funcionariosExclussao', authMiddleware, userController.getfuncionariosExclusao)
 router.delete('/funcionariosDelete/:id', userController.deleteUser)
 router.put('/trocaSenha/:id', userController.updateSenha)
+router.put('/users/:id/foto', upload.single("foto"), userController.updateUserPhoto);
 
 router.post('/createEndereco', emderecoController.createEndereco)
 router.post('/endereco', emderecoController.createEndereco);
