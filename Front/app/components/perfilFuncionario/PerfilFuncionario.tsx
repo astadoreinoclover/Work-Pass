@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Text, View, StyleSheet, useWindowDimensions, ScrollView } from 'react-native';
 import { AuthContext } from '@/contexts/Auth';
 import ItemPerfilComponent from './ItemComponenteFuncionario';
-import { useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import HabilidadeCard from './HabilidadeCard';
 import Nivel from './Nivel';
 import { RouteParams, Funcionario, Gaming } from './Types';
@@ -15,17 +15,20 @@ const FuncionarioProfile: React.FC = () => {
     const authContext = useContext(AuthContext);
     const [funcionario, setFuncionario] = useState<Funcionario | null>(null);
     const [gaming, setGaming] = useState<Gaming | null>(null);
+    const [foto, setFoto]= useState<String| null>(null);
 
     const route = useRoute();
     const { itemName, itemDepartament, itemId } = route.params as RouteParams;
 
-    useEffect(() => {
+    useFocusEffect(
+       useCallback(() => {
         const fetchFuncionario = async () => {
             try {
                 const response = await axios.get(`http://localhost:3000/api/user/${itemId}`);
                 const data = response.data;
                 console.log('Dados do funcionário recebidos:', data);
                 setFuncionario(data);
+                setFoto(funcionario?.foto || null)
                 const responseGame = await axios.get(`http://localhost:3000/api/gaming/${itemId}`);
                 const dataGame = responseGame.data;
                 console.log('Dados do funcionário recebidos:', dataGame);
@@ -36,7 +39,8 @@ const FuncionarioProfile: React.FC = () => {
         };
 
         fetchFuncionario();
-    }, [ itemId]);
+        }, [ itemId])
+    );
 
     if (!funcionario) {
         return (
@@ -45,11 +49,10 @@ const FuncionarioProfile: React.FC = () => {
             </View>
         );
     }
-
     return (
         <ScrollView>
             <View style={{ height: height * 0.75, width: width * 0.95, paddingBottom: 20 }}>
-                {gaming ? <Nivel funcionario={gaming} /> : null}
+                {gaming ? <Nivel funcionario={gaming} foto={funcionario?.foto} /> : null}
                 <View style={[styles.headerContainer, { flexDirection: width >=768?'row': 'column', width:width*0.9, justifyContent:width>=768?'space-around':'center', alignItems:width>=768?'baseline':'center'}]}>
                     <View style={{flexDirection: width >=768?'row': 'column'}}>
                        <Text style={{ fontWeight: 'bold', color: '#2C3E50', fontSize: 20, marginRight:10 }}>Habilidades:</Text>

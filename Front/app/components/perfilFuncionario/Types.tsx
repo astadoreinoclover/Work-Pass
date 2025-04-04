@@ -25,5 +25,6 @@ export type Funcionario = {
     dataNascimento: string;
     email: string;
     gaming?:Gaming[]
+    foto: string;
 };
 

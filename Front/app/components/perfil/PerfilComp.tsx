@@ -55,7 +55,6 @@ const UserProfile: React.FC = () => {
         setFuncao(authContext.authData?.funcao || null)
         setRole(authContext.authData?.role || null)
         setFoto(authContext.authData?.foto || null)
-        
 
         const fetchFuncionario = async () => {
             try {
