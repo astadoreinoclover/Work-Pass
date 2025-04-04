@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Text,View, StyleSheet, useWindowDimensions, ScrollView } from 'react-native';
+import { Text,View, StyleSheet, useWindowDimensions, ScrollView, Image } from 'react-native';
 import { AuthContext } from '@/contexts/Auth';
 import ItemComponent from './ItemComponentPerfil';
 import axios from 'axios';
@@ -26,7 +26,8 @@ export type Funcionario = {
     numero: string;
     dataNascimento: string;
     email: string;
-    gaming?:Gaming[]
+    gaming?:Gaming[];
+    foto: string;
 };
 
 const UserProfile: React.FC = () => {
@@ -42,6 +43,7 @@ const UserProfile: React.FC = () => {
     const [role, setRole] = useState<string | null>(null)
     const [gaming, setGaming] = useState<Gaming | null>(null);
     const [funcionario, setFuncionario] = useState<Funcionario | null>(null);
+    const [foto, setFoto] = useState<string | null>(null);
 
     useEffect(() => {
         setEmail(authContext.authData?.email || null);
@@ -52,6 +54,8 @@ const UserProfile: React.FC = () => {
         setDepartament(authContext.authData?.departamento || null)
         setFuncao(authContext.authData?.funcao || null)
         setRole(authContext.authData?.role || null)
+        setFoto(authContext.authData?.foto || null)
+        
 
         const fetchFuncionario = async () => {
             try {
@@ -67,7 +71,6 @@ const UserProfile: React.FC = () => {
                 console.error('Erro ao buscar funcionário:', error);
             }
         };
-
         fetchFuncionario();
     }, [authContext.authData]);
 
@@ -75,9 +78,16 @@ const UserProfile: React.FC = () => {
         <ScrollView>
             <View style={[styles.container, {height: height *0.75, width: width*0.95, flexDirection: 'column',}]}>
                 <View style={[{ width: width*0.95, display: 'flex', alignItems:'center', flexDirection: width >768?'row':'column'}]}>
-                    <svg xmlns="http://www.w3.org/2000/svg" color={'#2C3E50'} width={125} height={125} viewBox="0 0 24 24" fill="currentColor" className="size-6">
-                        <path fillRule="evenodd" d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" clipRule="evenodd" />
-                    </svg>
+                    {foto ? (
+                        <Image 
+                            source={{ uri: `http://localhost:3000${foto}` }} 
+                            style={{ width: 125, height: 125, borderRadius: 62.5 }} 
+                        />
+                    ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" color={'#2C3E50'} width={125} height={125} viewBox="0 0 24 24" fill="currentColor" className="size-6">
+                            <path fillRule="evenodd" d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" clipRule="evenodd" />
+                        </svg>
+                     )}
                     {role === 'USER' && gaming && <NivelUser funcionario={gaming} />}
                 </View>
                 <View style={[styles.areaItem, { flexDirection: width>768?'row':'column', margin: width>768?0:'auto'}]}>
