@@ -18,11 +18,13 @@ export default function FormEditarDados() {
     const [photo, setPhoto] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [photoPre, setPhotoPre] = useState<string | null>(null);
 
     useEffect(() => {
         if (authContext.authData) {
             setEmail(authContext.authData.email || '');
             setPhone(authContext.authData.numero || '');
+            setPhotoPre(authContext.authData.foto)
         }
     }, [authContext.authData]);
 
@@ -128,13 +130,13 @@ export default function FormEditarDados() {
 
     return (
         <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={[styles.posicao, { width: width >= 768 ? width * 0.8 : width * 0.9, top: width >= 768 ? 0 : 100 }]}>
+            <View style={[styles.posicao, { width: width >= 768 ? width * 0.8 : width * 0.9, top: width >= 768 ? 0 : 0 }]}>
                 <Text style={[styles.title, { fontSize: width >= 768 ? 30 : 22 }]}>
                     Editar dados
                 </Text>
                 {error && <Text style={styles.errorText}>{error}</Text>}
                 <View style={[styles.containerInputs, { flexDirection: width >= 768 ? 'row' : 'column' }]}>
-                    <View style={{ padding: 5, width: width >= 768 ? width * 0.3 : width * 0.9 }}>
+                    <View style={{ padding: 5, width: width >= 768 ? width * 0.3 : width * 0.8 }}>
                         <Text style={{ color: '#fff' }}>Email</Text>
                         <InputWithIcon 
                             label="Email" 
@@ -142,7 +144,7 @@ export default function FormEditarDados() {
                             setValue={setEmail} 
                         />
                     </View>
-                    <View style={{ padding: 5, width: width >= 768 ? width * 0.3 : width * 0.9 }}>
+                    <View style={{ padding: 5, width: width >= 768 ? width * 0.3 : width * 0.8 }}>
                         <Text style={{ color: '#fff' }}>Número (Celular)</Text>
                         <InputWithIcon 
                             label="Número (Celular)" 
@@ -152,11 +154,16 @@ export default function FormEditarDados() {
                     </View>
                 </View>
                 <TouchableOpacity onPress={pickImage} style={styles.photoContainer}>
-                    {photo ? (
+                {
+                    photo ? (
                         <Image source={{ uri: photo }} style={styles.image} />
-                    ) : (
-                        <Text style={styles.photoPlaceholder}>Selecionar Foto</Text>
-                    )}
+                    ) : photoPre ? (
+                        <View>
+                            <Image source={{uri: `http://localhost:3000${photoPre}`}} style={[styles.image, {top:11}]} />
+                            <Text style={{textAlign: 'center', color:'#fff', top:10}}>Trocar Foto</Text>
+                        </View>
+                    ) : (<Text style={styles.photoPlaceholder}>Selecionar Foto</Text>)
+                }
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[
