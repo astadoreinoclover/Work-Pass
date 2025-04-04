@@ -1,48 +1,129 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, StyleSheet, useWindowDimensions, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { View, StyleSheet, useWindowDimensions, Text, TouchableOpacity, ScrollView, Image, Alert, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import InputWithIcon from './RenderForm';
 import { AuthContext } from '@/contexts/Auth';
+import axios from 'axios';
+import { useNavigation } from 'expo-router';
+import { NavigationProp } from '@react-navigation/native'; 
+import { RootStackParamList } from '../navigation/types';
+
 
 export default function FormEditarDados() {
     const { width } = useWindowDimensions();
     const authContext = useContext(AuthContext);
-
-    const [email, setEmail] = useState<string | null>(null);
-    const [phone, setPhone] = useState<string | null>(null);
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+    const [email, setEmail] = useState<string>('');
+    const [phone, setPhone] = useState<string>('');
     const [photo, setPhoto] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        setEmail(authContext.authData?.email || '');
-        setPhone(authContext.authData?.numero || '');
+        if (authContext.authData) {
+            setEmail(authContext.authData.email || '');
+            setPhone(authContext.authData.numero || '');
+        }
     }, [authContext.authData]);
 
     const pickImage = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [4, 4],
-            quality: 1,
-        });
+        try {
+            // Request permissions (only needed for mobile)
+            if (Platform.OS !== 'web') {
+                const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                if (!permissionResult.granted) {
+                    Alert.alert('Permissão necessária', 'Precisamos de acesso à sua galeria para selecionar uma foto.');
+                    return;
+                }
+            }
 
-        if (!result.canceled && result.assets && result.assets.length > 0) {
-            setPhoto(result.assets[0].uri);
+            let result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                aspect: [4, 4],
+                quality: 0.8,
+                base64: Platform.OS === 'web', // Get base64 for web
+            });
+
+            if (!result.canceled && result.assets && result.assets.length > 0) {
+                if (Platform.OS === 'web') {
+                    // For web, use base64 or blob
+                    setPhoto(`data:image/jpeg;base64,${result.assets[0].base64}`);
+                } else {
+                    // For mobile, use the URI directly
+                    setPhoto(result.assets[0].uri);
+                }
+            }
+        } catch (error) {
+            console.error('Error picking image:', error);
+            setError('Erro ao selecionar a imagem');
         }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!email || !phone) {
             setError('Por favor, preencha todos os campos obrigatórios.');
             return;
         }
 
         setError(null);
-        console.log({
-            email,
-            phone,
-            photo,
-        });
+        setIsLoading(true);
+
+        try {
+            // Then handle photo upload if a new photo was selected
+            if (photo && !photo.startsWith('http')) {
+                await uploadPhoto();
+            }
+
+            await authContext.updateUserData()
+            navigation.navigate('Perfil')
+            Alert.alert('Sucesso', 'Dados atualizados com sucesso!');
+        } catch (error) {
+            console.error('Error updating user:', error);
+            setError('Erro ao atualizar dados. Por favor, tente novamente.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const uploadPhoto = async () => {
+        if (!photo || !authContext.authData?.id) return;
+
+        try {
+            const formData = new FormData();
+            
+            if (Platform.OS === 'web') {
+                // Web handling
+                if (photo.startsWith('data:')) {
+                    // Convert base64 to blob
+                    const response = await fetch(photo);
+                    const blob = await response.blob();
+                    formData.append('foto', blob, `user_${authContext.authData.id}.jpg`);
+                } else {
+                    // Regular file URI (unlikely on web)
+                    const response = await fetch(photo);
+                    const blob = await response.blob();
+                    formData.append('foto', blob, `user_${authContext.authData.id}.jpg`);
+                }
+            } else {
+                // Native handling
+                const filename = photo.split('/').pop() || `user_${authContext.authData.id}.jpg`;
+                formData.append('foto', {
+                    uri: photo,
+                    name: filename,
+                    type: 'image/jpeg',
+                } as any);
+            }
+
+            await axios.put(`http://localhost:3000/api/users/${authContext.authData.id}/foto`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+        } catch (error) {
+            console.error('Error uploading photo:', error);
+            throw error;
+        }
     };
 
     return (
@@ -55,11 +136,19 @@ export default function FormEditarDados() {
                 <View style={[styles.containerInputs, { flexDirection: width >= 768 ? 'row' : 'column' }]}>
                     <View style={{ padding: 5, width: width >= 768 ? width * 0.3 : width * 0.9 }}>
                         <Text style={{ color: '#fff' }}>Email</Text>
-                        <InputWithIcon label="Email" value={email || ''} setValue={setEmail} />
+                        <InputWithIcon 
+                            label="Email" 
+                            value={email} 
+                            setValue={setEmail} 
+                        />
                     </View>
                     <View style={{ padding: 5, width: width >= 768 ? width * 0.3 : width * 0.9 }}>
                         <Text style={{ color: '#fff' }}>Número (Celular)</Text>
-                        <InputWithIcon label="Número (Celular)" value={phone || ''} setValue={setPhone} />
+                        <InputWithIcon 
+                            label="Número (Celular)" 
+                            value={phone} 
+                            setValue={setPhone} 
+                        />
                     </View>
                 </View>
                 <TouchableOpacity onPress={pickImage} style={styles.photoContainer}>
@@ -70,10 +159,20 @@ export default function FormEditarDados() {
                     )}
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={[styles.button, { padding: width >= 768 ? 15 : 10, width: width >= 768 ? width * 0.3 : width * 0.8 }]}
+                    style={[
+                        styles.button, 
+                        { 
+                            padding: width >= 768 ? 15 : 10, 
+                            width: width >= 768 ? width * 0.3 : width * 0.8,
+                            opacity: isLoading ? 0.7 : 1 
+                        }
+                    ]}
                     onPress={handleSubmit}
+                    disabled={isLoading}
                 >
-                    <Text style={styles.buttonText}>Concluir</Text>
+                    <Text style={styles.buttonText}>
+                        {isLoading ? 'Processando...' : 'Concluir'}
+                    </Text>
                 </TouchableOpacity>
             </View>
         </ScrollView>
