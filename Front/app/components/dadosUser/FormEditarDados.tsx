@@ -44,15 +44,13 @@ export default function FormEditarDados() {
                 allowsEditing: true,
                 aspect: [4, 4],
                 quality: 0.8,
-                base64: Platform.OS === 'web', // Get base64 for web
+                base64: Platform.OS === 'web', 
             });
 
             if (!result.canceled && result.assets && result.assets.length > 0) {
                 if (Platform.OS === 'web') {
-                    // For web, use base64 or blob
                     setPhoto(`data:image/jpeg;base64,${result.assets[0].base64}`);
                 } else {
-                    // For mobile, use the URI directly
                     setPhoto(result.assets[0].uri);
                 }
             }
@@ -72,7 +70,6 @@ export default function FormEditarDados() {
         setIsLoading(true);
 
         try {
-            // Then handle photo upload if a new photo was selected
             if (photo && !photo.startsWith('http')) {
                 await uploadPhoto();
             }
@@ -95,20 +92,16 @@ export default function FormEditarDados() {
             const formData = new FormData();
             
             if (Platform.OS === 'web') {
-                // Web handling
                 if (photo.startsWith('data:')) {
-                    // Convert base64 to blob
                     const response = await fetch(photo);
                     const blob = await response.blob();
                     formData.append('foto', blob, `user_${authContext.authData.id}.jpg`);
                 } else {
-                    // Regular file URI (unlikely on web)
                     const response = await fetch(photo);
                     const blob = await response.blob();
                     formData.append('foto', blob, `user_${authContext.authData.id}.jpg`);
                 }
             } else {
-                // Native handling
                 const filename = photo.split('/').pop() || `user_${authContext.authData.id}.jpg`;
                 formData.append('foto', {
                     uri: photo,

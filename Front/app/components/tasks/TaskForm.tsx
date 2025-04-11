@@ -9,6 +9,7 @@ import InputTextTask from './InputTextTask';
 import InputDataTask from './InputDataTask';
 import InputNumberTask from './InputNumberTask';
 import axios from 'axios';
+import { Picker } from '@react-native-picker/picker';
 
 type Funcionario = {
     id: number;
@@ -171,14 +172,42 @@ const TaskForm = () => {
             }
         }
     };
+    const [currentStep, setCurrentStep] = useState(1);
+    const [selectedOption, setSelectedOption] =  useState('');
 
     return (
         <ScrollView style={[styles.container, { width: width >= 768 ? width * 0.6 : width * 0.9 }]} showsVerticalScrollIndicator={false}>
+         {currentStep === 1 && (
+            <View>
             <InputTextTask label="Task" value={taskName || ''} setValue={setTaskName} />
             <InputTextTask label="Desc" value={description} setValue={setDescription} />
             <InputNumberTask label="Pts" value={points} setValue={setPoints} />
             <InputDataTask label="Fechamento" value={deadline} setValue={setDeadline} />
-
+            </View>
+         )}
+          {currentStep === 2 && (
+            <View>
+                <Text style={styles.label}>Metodo de entrega:</Text>
+            <Picker
+                selectedValue={selectedOption}
+                onValueChange={(itemValue) => setSelectedOption(itemValue)}
+                style={styles.picker}
+            >
+                <Picker.Item label="-- Selecione uma opção --" value="" enabled={false} />
+                <Picker.Item label="PDF" value="PDF" />
+                <Picker.Item label="LINK" value="LINK" />
+                <Picker.Item label="IMAGEM" value="IMAGEM" />
+                <Picker.Item label="META" value="META" />
+            </Picker>
+            {selectedOption == "META" &&(
+                <View>
+                    <input></input>
+                </View>
+            )}
+            </View>
+          )}
+          {currentStep === 3 && (
+            <View>
             <Text style={styles.label}>Habilidades:</Text>
             <TextInput
                 style={styles.searchInput}
@@ -207,7 +236,10 @@ const TaskForm = () => {
                     <Text style={styles.buttonText}>Cadastrar: {searchHabilidade}</Text>
                 </TouchableOpacity>
             )}
-
+            </View>
+            )}
+            {currentStep === 4 && (
+            <View>
             <Text style={styles.label}>Funcionários:</Text>
             <TextInput
                 style={styles.searchInput}
@@ -227,10 +259,26 @@ const TaskForm = () => {
                     </View>
                 ))}
             </ScrollView>
+            </View>
+            )}
 
-            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-                <Text style={styles.buttonText}>Cadastrar Task</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+                {currentStep > 1 && (
+                    <TouchableOpacity style={[styles.button, { backgroundColor: '#95a5a6' }]} onPress={() => setCurrentStep(prev => prev - 1)}>
+                        <Text style={styles.buttonText}>Voltar</Text>
+                    </TouchableOpacity>
+                )}
+                {currentStep < 4 && (
+                    <TouchableOpacity style={styles.button_proximo} onPress={() => setCurrentStep(prev => prev + 1)}>
+                        <Text style={styles.buttonText}>Próximo</Text>
+                    </TouchableOpacity>
+                )}
+                {currentStep == 4 && (
+                    <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                        <Text style={styles.buttonText}>Cadastrar Task</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
 
             <AwesomeAlert
                 show={alertVisible}
@@ -283,8 +331,20 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         alignItems: 'center',
         marginTop: 15,
-        width: '60%',
+        width: '40%',
         alignSelf: 'center'
+      },
+      button_proximo: {
+        backgroundColor: '#2C3E50',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 5,
+        alignItems: 'center',
+        marginTop: 15,
+        width: '40%',
+        alignSelf: 'center',
+        position: 'absolute',
+        right: 0
       },
       buttonText: {
         color: '#fff',
@@ -298,7 +358,17 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         paddingHorizontal: 8,
         marginBottom: 10,
-      }
+      },
+
+      picker: {
+        backgroundColor: '#f0f0f0',
+        borderRadius: 8,
+      },
+      selected: {
+        marginTop: 12,
+        fontSize: 16,
+        fontWeight: 'bold',
+      },
 });
 
 export default TaskForm;
