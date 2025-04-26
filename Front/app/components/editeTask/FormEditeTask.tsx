@@ -1,6 +1,7 @@
 import AwesomeAlert from 'react-native-awesome-alerts';
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TextInput, ScrollView, StyleSheet, Switch, useWindowDimensions, TouchableOpacity } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { AuthContext } from '@/contexts/Auth';
 import { useNavigation } from 'expo-router';
 import { NavigationProp, useRoute } from '@react-navigation/native'; 
@@ -197,13 +198,92 @@ const FormEditeTask = () => {
         }
     };
 
+    const [currentStep, setCurrentStep] = useState(1);
+    const [selectedOption, setSelectedOption] =  useState('');
+    const [selectedOption2, setSelectedOption2] = useState('');
+    const [valorMeta, setValorMeta] = useState('')
+
+    const handleValorChange = (text: string) => {
+        const numericValue = text.replace(/\D/g, '');
+        const number = parseFloat(numericValue) / 100;
+        const formattedValue = number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        setValorMeta(formattedValue);
+    };
+    const handleValorChange2 = (text: string) => {
+        const numericValue = text.replace(/\D/g, '');
+        setValorMeta(numericValue);
+    };
+
     return (
         <ScrollView style={[styles.container, { width: width >= 768 ? width * 0.6 : width * 0.9 }]} showsVerticalScrollIndicator={false}>
+         {currentStep === 1 && (
+            <View>
             <InputTextTask label="Task" value={taskName || ''} setValue={setTaskName} />
             <InputTextTask label="Desc" value={description} setValue={setDescription} />
             <InputNumberTask label="Pts" value={points} setValue={setPoints} />
             <InputDataTask label="Fechamento" value={deadline} setValue={setDeadline} />
-
+            </View>
+         )}
+          {currentStep === 2 && (
+            <View>
+                <Text style={styles.label}>Metodo de entrega:</Text>
+            <Picker
+                selectedValue={selectedOption}
+                onValueChange={(itemValue) => setSelectedOption(itemValue)}
+                style={styles.picker}
+            >
+                <Picker.Item label="-- Selecione uma opção --" value="" enabled={false} />
+                <Picker.Item label="PDF" value="PDF" />
+                <Picker.Item label="LINK" value="LINK" />
+                <Picker.Item label="IMAGEM" value="IMAGEM" />
+                <Picker.Item label="META" value="META" />
+            </Picker>
+            {selectedOption == "META" &&(
+                <View>
+                    <Text style={styles.label}>Tipo de meta:</Text>
+                    <Picker
+                        selectedValue={selectedOption2}
+                        onValueChange={(itemValue) => setSelectedOption2(itemValue)}
+                        style={styles.picker}
+                    >
+                        <Picker.Item label="-- Selecione uma opção --" value="" enabled={false} />
+                        <Picker.Item label="Valor (R$)" value="VALOR" />
+                        <Picker.Item label="Entregas/Ações" value="ENTREGA" />
+                    </Picker>
+                    {selectedOption2 == "VALOR" &&(
+                        <View>
+                            <TextInput
+                                style={[styles.searchInput, {marginTop: 10}]}
+                                keyboardType="numeric"
+                                autoCapitalize="none"
+                                accessibilityHint="Enter a number"
+                                placeholder='00,00'
+                                placeholderTextColor={'#ccc'}
+                                value={valorMeta}
+                                onChangeText={handleValorChange}
+                            />
+                        </View>
+                    )}
+                    {selectedOption2 == "ENTREGA" &&(
+                        <View>
+                            <TextInput
+                                style={[styles.searchInput, {marginTop: 10}]}
+                                keyboardType="numeric"
+                                autoCapitalize="none"
+                                accessibilityHint="Enter a number"
+                                placeholder='Número de entregas'
+                                placeholderTextColor={'#ccc'}
+                                value={valorMeta}
+                                onChangeText={handleValorChange2}
+                            />
+                        </View>
+                    )}
+                </View>
+            )}
+            </View>
+          )}
+          {currentStep === 3 && (
+            <View>
             <Text style={styles.label}>Habilidades:</Text>
             <TextInput
                 style={styles.searchInput}
@@ -232,7 +312,10 @@ const FormEditeTask = () => {
                     <Text style={styles.buttonText}>Cadastrar: {searchHabilidade}</Text>
                 </TouchableOpacity>
             )}
-
+            </View>
+            )}
+            {currentStep === 4 && (
+            <View>
             <Text style={styles.label}>Funcionários:</Text>
             <TextInput
                 style={styles.searchInput}
@@ -252,10 +335,26 @@ const FormEditeTask = () => {
                     </View>
                 ))}
             </ScrollView>
+            </View>
+            )}
 
-            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-                <Text style={styles.buttonText}>Cadastrar Task</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+                {currentStep > 1 && (
+                    <TouchableOpacity style={[styles.button, { backgroundColor: '#95a5a6' }]} onPress={() => setCurrentStep(prev => prev - 1)}>
+                        <Text style={styles.buttonText}>Voltar</Text>
+                    </TouchableOpacity>
+                )}
+                {currentStep < 4 && (
+                    <TouchableOpacity style={styles.button_proximo} onPress={() => setCurrentStep(prev => prev + 1)}>
+                        <Text style={styles.buttonText}>Próximo</Text>
+                    </TouchableOpacity>
+                )}
+                {currentStep == 4 && (
+                    <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                        <Text style={styles.buttonText}>Cadastrar Task</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
 
             <AwesomeAlert
                 show={alertVisible}
@@ -278,7 +377,7 @@ const FormEditeTask = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+    container: {
         padding: 20,
       },
       label: {
@@ -308,8 +407,20 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         alignItems: 'center',
         marginTop: 15,
-        width: '60%',
+        width: '40%',
         alignSelf: 'center'
+      },
+      button_proximo: {
+        backgroundColor: '#2C3E50',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 5,
+        alignItems: 'center',
+        marginTop: 15,
+        width: '40%',
+        alignSelf: 'center',
+        position: 'absolute',
+        right: 0
       },
       buttonText: {
         color: '#fff',
@@ -323,7 +434,18 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         paddingHorizontal: 8,
         marginBottom: 10,
-      }
+      },
+
+      picker: {
+        backgroundColor: '#f0f0f0',
+        borderRadius: 8,
+        padding:5
+      },
+      selected: {
+        marginTop: 12,
+        fontSize: 16,
+        fontWeight: 'bold',
+      },
 });
 
 export default FormEditeTask;

@@ -119,15 +119,13 @@ exports.getUsersByRoleAndDepartment = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
     const { id } = req.params;
-    const {  email, numero, departamento, role } = req.body;
+    const {  email, numero } = req.body;
     try {
         const updatedUser = await prisma.user.update({
             where: { id: parseInt(id) },
             data: {
                 email,
                 numero,
-                departamento,
-                role,
             },
         });
         res.json(updatedUser);

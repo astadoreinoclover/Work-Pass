@@ -108,7 +108,7 @@ const TaskForm = () => {
                     task_id: taskId,
                 });
             }));
-
+            console.log(taskName,description, points, selectedHabilidade, deadline, selectedOption,selectedOption2, valorMeta)
             setAlertMessage('Tarefa cadastrada e atribuída com sucesso!');
         } catch (error) {
             console.error('Erro ao cadastrar a tarefa ou associar funcionários:', error);
@@ -174,6 +174,20 @@ const TaskForm = () => {
     };
     const [currentStep, setCurrentStep] = useState(1);
     const [selectedOption, setSelectedOption] =  useState('');
+    const [selectedOption2, setSelectedOption2] = useState('');
+    const [valorMeta, setValorMeta] = useState('')
+
+    const handleValorChange = (text: string) => {
+        const numericValue = text.replace(/\D/g, '');
+        const number = parseFloat(numericValue) / 100;
+        const formattedValue = number.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        setValorMeta(formattedValue);
+    };
+
+    const handleValorChange2 = (text: string) => {
+        const numericValue = text.replace(/\D/g, '');
+        setValorMeta(numericValue);
+    };
 
     return (
         <ScrollView style={[styles.container, { width: width >= 768 ? width * 0.6 : width * 0.9 }]} showsVerticalScrollIndicator={false}>
@@ -201,7 +215,44 @@ const TaskForm = () => {
             </Picker>
             {selectedOption == "META" &&(
                 <View>
-                    <input></input>
+                    <Text style={styles.label}>Tipo de meta:</Text>
+                    <Picker
+                        selectedValue={selectedOption2}
+                        onValueChange={(itemValue) => setSelectedOption2(itemValue)}
+                        style={styles.picker}
+                    >
+                        <Picker.Item label="-- Selecione uma opção --" value="" enabled={false} />
+                        <Picker.Item label="Valor (R$)" value="VALOR" />
+                        <Picker.Item label="Entregas/Ações" value="ENTREGA" />
+                    </Picker>
+                    {selectedOption2 == "VALOR" &&(
+                        <View>
+                            <TextInput
+                                style={[styles.searchInput, {marginTop: 10}]}
+                                keyboardType="numeric"
+                                autoCapitalize="none"
+                                accessibilityHint="Enter a number"
+                                placeholder='00,00'
+                                placeholderTextColor={'#ccc'}
+                                value={valorMeta}
+                                onChangeText={handleValorChange}
+                            />
+                        </View>
+                    )}
+                    {selectedOption2 == "ENTREGA" &&(
+                        <View>
+                            <TextInput
+                                style={[styles.searchInput, {marginTop: 10}]}
+                                keyboardType="numeric"
+                                autoCapitalize="none"
+                                accessibilityHint="Enter a number"
+                                placeholder='Número de entregas'
+                                placeholderTextColor={'#ccc'}
+                                value={valorMeta}
+                                onChangeText={handleValorChange2}
+                            />
+                        </View>
+                    )}
                 </View>
             )}
             </View>
@@ -363,6 +414,7 @@ const styles = StyleSheet.create({
       picker: {
         backgroundColor: '#f0f0f0',
         borderRadius: 8,
+        padding:5
       },
       selected: {
         marginTop: 12,
