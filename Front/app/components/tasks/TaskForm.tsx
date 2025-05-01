@@ -106,6 +106,9 @@ const TaskForm = () => {
                 await axios.post('http://localhost:3000/api/taskUser', {
                     user_id: employeeId,
                     task_id: taskId,
+                    delivery_type: selectedOption,
+                    meta_type: selectedOption2,
+                    meta_value: valorMeta,
                 });
             }));
             console.log(taskName,description, points, selectedHabilidade, deadline, selectedOption,selectedOption2, valorMeta)
@@ -175,7 +178,7 @@ const TaskForm = () => {
     const [currentStep, setCurrentStep] = useState(1);
     const [selectedOption, setSelectedOption] =  useState('');
     const [selectedOption2, setSelectedOption2] = useState('');
-    const [valorMeta, setValorMeta] = useState('')
+    const [valorMeta, setValorMeta] = useState('');
 
     const handleValorChange = (text: string) => {
         const numericValue = text.replace(/\D/g, '');
@@ -210,7 +213,7 @@ const TaskForm = () => {
                 <Picker.Item label="-- Selecione uma opção --" value="" enabled={false} />
                 <Picker.Item label="PDF" value="PDF" />
                 <Picker.Item label="LINK" value="LINK" />
-                <Picker.Item label="IMAGEM" value="IMAGEM" />
+                <Picker.Item label="IMAGEM" value="IMG" />
                 <Picker.Item label="META" value="META" />
             </Picker>
             {selectedOption == "META" &&(
@@ -222,10 +225,10 @@ const TaskForm = () => {
                         style={styles.picker}
                     >
                         <Picker.Item label="-- Selecione uma opção --" value="" enabled={false} />
-                        <Picker.Item label="Valor (R$)" value="VALOR" />
+                        <Picker.Item label="Valor (R$)" value="VALUE" />
                         <Picker.Item label="Entregas/Ações" value="ENTREGA" />
                     </Picker>
-                    {selectedOption2 == "VALOR" &&(
+                    {selectedOption2 == "VALUE" &&(
                         <View>
                             <TextInput
                                 style={[styles.searchInput, {marginTop: 10}]}

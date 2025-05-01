@@ -29,6 +29,7 @@ type EmployeeTask = {
   descricao: string;
   fechamento: string;
   status: string;
+  delivery_type: string;
 };
 
 export default function Ranking() {
@@ -189,7 +190,7 @@ export default function Ranking() {
                 </Text>
                 <Text style={styles.modalInfoText}>
                   <Text style={styles.modalInfoLabel}>Forma de Entrega: </Text>
-                  {selectedTask?.department}
+                  {selectedTask?.delivery_type}
                 </Text>
                 <Text style={styles.modalInfoText}>
                   <Text style={styles.modalInfoLabel}>Status: </Text>
@@ -306,7 +307,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   descButton: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#2c3e50',
     padding: 6,
     borderRadius: 4,
     alignSelf: 'flex-start',
@@ -329,10 +330,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   editButton: {
-    backgroundColor: '#2ecc71',
+    backgroundColor: '#449dfc',
   },
   deleteButton: {
-    backgroundColor: '#e74c3c',
+    backgroundColor: '#9fbbda',
   },
   actionButtonText: {
     color: '#fff',

@@ -85,6 +85,9 @@ const FormEditeTask = () => {
             toggleEmployeeSelection(responseTask.data.idUser)
             setDeadline(responseTask.data.dataFinal)
             toggleHabilidadeSelection({id:responseTask.data.habilidadeId, nome: 'vazio'})
+            setSelectedOption(responseTask.data.deliveryType)
+            setSelectedOption2(responseTask.data.metaType)
+            setValorMeta(responseTask.data.metaValue)
         }
         fetchTask();
         fetchEmployees();
@@ -92,7 +95,7 @@ const FormEditeTask = () => {
     }, []);
 
     const handleSubmit = async () => {
-        if(!taskName || !description || !points || !selectedHabilidade || !deadline) {
+        if(!taskName || !description || !points || !selectedHabilidade || !deadline || !selectedOption) {
             setAlertMessage('Preencha todos os campos. Tente novamente.');
             setAlertVisible(true);
             return
@@ -131,6 +134,9 @@ const FormEditeTask = () => {
                 await axios.post('http://localhost:3000/api/taskUser', {
                     user_id: employeeId,
                     task_id: taskId,
+                    delivery_type: selectedOption,
+                    meta_type: selectedOption2,
+                    meta_value: valorMeta,
                 });
             }));
 
@@ -247,10 +253,10 @@ const FormEditeTask = () => {
                         style={styles.picker}
                     >
                         <Picker.Item label="-- Selecione uma opção --" value="" enabled={false} />
-                        <Picker.Item label="Valor (R$)" value="VALOR" />
+                        <Picker.Item label="Valor (R$)" value="VALUE" />
                         <Picker.Item label="Entregas/Ações" value="ENTREGA" />
                     </Picker>
-                    {selectedOption2 == "VALOR" &&(
+                    {selectedOption2 == "VALUE" &&(
                         <View>
                             <TextInput
                                 style={[styles.searchInput, {marginTop: 10}]}

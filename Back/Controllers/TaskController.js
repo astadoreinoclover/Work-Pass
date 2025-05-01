@@ -73,12 +73,15 @@ exports.deleteTask = async (req, res) => {
 };
 
 exports.createTaskUser = async (req, res) => {
-    const { task_id, user_id } = req.body;
+    const { task_id, user_id, delivery_type, meta_type, meta_value } = req.body;
     try {
         const newTask = await prisma.userTask.create({
             data: {
                 user_id: user_id,
                 task_id: task_id,
+                delivery_type: delivery_type,
+                meta_type: meta_type ? meta_type : null,
+                meta_value: meta_value ? meta_value : null,
                 status: 'EM_ANDAMENTO'
             },
         });
@@ -150,7 +153,10 @@ exports.getTaskDetailsByStatusAndDepartment = async (req, res) => {
                     titulo: userTask.task.titulo,
                     descricao: userTask.task.descricao,
                     fechamento: userTask.task.dataFinal,
-                    pts: userTask.task.valorEntrega
+                    pts: userTask.task.valorEntrega,
+                    delivery_type: userTask.delivery_type,
+                    meta_type: userTask.meta_type,
+                    meta_value: userTask.meta_value,
                 }))
         );
 
@@ -284,7 +290,10 @@ exports.getTaskforEdite = async (req, res) => {
             userEmpresa: task.user.id_empresa,
             idUser: task.user.id,
             habilidadeId: task.task.habilidadeId,
-            dataFinal: task.task.dataFinal
+            dataFinal: task.task.dataFinal,
+            deliveryType: task.delivery_type,
+            metaType: task.meta_type,
+            metaValue: task.meta_value,
         });
     } catch (error) {
         res.status(500).json({ error: 'Erro ao buscar Task', details: error.message });
