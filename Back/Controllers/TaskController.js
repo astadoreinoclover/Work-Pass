@@ -299,3 +299,39 @@ exports.getTaskforEdite = async (req, res) => {
         res.status(500).json({ error: 'Erro ao buscar Task', details: error.message });
     }
 }
+
+exports.entregaTask = async (req, res) => {
+    const { id } = req.params;
+    const entrega = req.file ? `/uploads/tasks/${req.file.filename}` : null;
+
+    console.log("ID recebido:", id);
+    console.log("Arquivo recebido:", req.file);
+
+    try {
+        if (isNaN(Number(id))) {
+            return res.status(400).json({ error: "ID inválido" });
+        }
+
+        const taskExists = await prisma.userTask.findUnique({ where: { id: Number(id) } });
+        if (!taskExists) {
+            return res.status(404).json({ error: "Tarefa não encontrada" });
+        }
+
+        const updatedTask = await prisma.userTask.update({
+            where: { id: Number(id) },
+            data: { entrega },
+        });
+
+        const updatedTask2 = await prisma.userTask.update({
+            where: { id: Number(id) },
+            data: {
+                status: 'CONCLUIDA'
+            }
+        });
+
+        res.json(updatedTask2);
+    } catch (error) {
+        console.error("Erro ao atualizar tarefa:", error);
+        res.status(500).json({ error: "Erro ao atualizar tarefa" });
+    }
+};

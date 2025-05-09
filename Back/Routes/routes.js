@@ -10,6 +10,7 @@ const loginController = require('../Controllers/LoginController.js');
 const userController = require('../Controllers/UserController.js');
 const authMiddleware = require('../Middlewares/AuthMiddleware.js');
 const upload = require("../Middlewares/uploadMiddleware");
+const uploadTaskFile = require("../Middlewares/uploadMiddleware");
 const emderecoController = require('../Controllers/EnderecoController.js')
 
 router.post('/ranking', taskController.getRanking)
@@ -62,6 +63,7 @@ router.post('/taskUser', taskController.createTaskUser);
 router.delete('/taskUser/:id', authMiddleware, taskController.deleteAllTasksByUserId);
 router.post('/tasks', taskController.getTaskDetailsByStatusAndDepartment)
 router.post('/taskEdite', taskController.getTaskforEdite)
+router.put('/users/:id/task', uploadTaskFile.single("task"), taskController.entregaTask);
 
 // Rotas para Carreira
 router.post('/carreiras', carreiraController.createCarreira);

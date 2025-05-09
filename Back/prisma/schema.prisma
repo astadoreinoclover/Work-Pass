@@ -73,6 +73,7 @@ model UserTask {
   meta_value String?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+  entrega   String?
 }
 
 model Gaming {

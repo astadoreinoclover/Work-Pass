@@ -6,6 +6,7 @@ const cors = require('cors');
 
 app.use(cors());
 app.use("/uploads", express.static("uploads"));
+app.use("/uploads/tasks", express.static("uploads/tasks"));
 app.use(bodyParser.json());
 app.use('/api', routes);
 
