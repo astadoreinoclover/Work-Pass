@@ -157,6 +157,7 @@ exports.getTaskDetailsByStatusAndDepartment = async (req, res) => {
                     delivery_type: userTask.delivery_type,
                     meta_type: userTask.meta_type,
                     meta_value: userTask.meta_value,
+                    status: userTask.status,
                 }))
         );
 
@@ -333,5 +334,63 @@ exports.entregaTask = async (req, res) => {
     } catch (error) {
         console.error("Erro ao atualizar tarefa:", error);
         res.status(500).json({ error: "Erro ao atualizar tarefa" });
+    }
+};
+
+exports.getTaskDetailsByStatusAndDepartmentAndId = async (req, res) => {
+    const { status, departamento, id_empresa, id } = req.body;
+
+    try {
+        const users = await prisma.user.findMany({
+            where: {
+                id_empresa: id_empresa,
+                role: "USER",
+                ...(departamento && departamento.toLowerCase() !== 'geral' ? { departamento } : {}),
+                id: id
+            },
+            include: {
+                tasks: {
+                    include: {
+                        task: true
+                    }
+                }
+            }
+        });
+
+        for (const user of users) {
+            for (const userTask of user.tasks) {
+                const fechamentoDate = parse(userTask.task.dataFinal, 'dd/MM/yyyy', new Date());
+
+                if (isBefore(fechamentoDate, new Date()) && userTask.status === 'EM_ANDAMENTO') {
+                    await prisma.userTask.update({
+                        where: { id: userTask.id },
+                        data: { status: 'NAO_ENTREGUE' }
+                    });
+                    userTask.status = 'NAO_ENTREGUE';
+                }
+            }
+        }
+
+        const tasksResponse = users.flatMap(user => 
+            user.tasks
+                .filter(userTask => userTask.status === status)
+                .map(userTask => ({
+                    funcionario: user.name,
+                    id_task: userTask.id,
+                    titulo: userTask.task.titulo,
+                    descricao: userTask.task.descricao,
+                    fechamento: userTask.task.dataFinal,
+                    pts: userTask.task.valorEntrega,
+                    delivery_type: userTask.delivery_type,
+                    meta_type: userTask.meta_type,
+                    meta_value: userTask.meta_value,
+                    status: userTask.status,
+                }))
+        );
+
+        res.status(200).json(tasksResponse);
+    } catch (error) {
+        console.error('Erro ocorrido:', error);
+        res.status(500).json({ error: 'Erro ao buscar tarefas', details: error.message });
     }
 };

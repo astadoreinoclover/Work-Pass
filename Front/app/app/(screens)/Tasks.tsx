@@ -7,6 +7,7 @@ import FilterTasks from '@/components/tasks/FilterTasks';
 import { TaskContext } from '@/contexts/TaskContaxt';
 import Task from '@/components/tasks/Task';
 import AddTaskButton from '@/components/tasks/ButtonAddTask';
+import TaskFunc from '@/components/tasks/TaskFunc';
 
 export default function Tasks() {
   const { width, height } = useWindowDimensions();
@@ -35,8 +36,10 @@ export default function Tasks() {
       )}
       {authContext.authData?.role === 'USER' && (
         <>
-          <View style={{display: 'flex', flexDirection: 'column', height: height * 0.8, alignItems: 'center'}}>
-            <Text style={[styles.title, {fontSize: width >= 768 ? 32 : 22}]}>Tela em Desenvolvimento</Text>
+          <Text style={styles.title}>TaskF</Text>
+          <View style={[styles.area,{width: width >=768? width*0.6:width*0.9, height: height *0.6}]}>
+            <FilterTasks />
+            <TaskFunc />
           </View>
         </>
       )}
