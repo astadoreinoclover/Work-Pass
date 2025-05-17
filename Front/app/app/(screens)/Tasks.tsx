@@ -36,7 +36,7 @@ export default function Tasks() {
       )}
       {authContext.authData?.role === 'USER' && (
         <>
-          <Text style={styles.title}>TaskF</Text>
+          <Text style={styles.title}>Tasks</Text>
           <View style={[styles.area,{width: width >=768? width*0.6:width*0.9, height: height *0.6}]}>
             <FilterTasks />
             <TaskFunc />

@@ -158,6 +158,7 @@ exports.getTaskDetailsByStatusAndDepartment = async (req, res) => {
                     meta_type: userTask.meta_type,
                     meta_value: userTask.meta_value,
                     status: userTask.status,
+                    entrega: userTask.entrega
                 }))
         );
 
@@ -385,6 +386,7 @@ exports.getTaskDetailsByStatusAndDepartmentAndId = async (req, res) => {
                     meta_type: userTask.meta_type,
                     meta_value: userTask.meta_value,
                     status: userTask.status,
+                    entrega: userTask.entrega,
                 }))
         );
 
@@ -393,4 +395,100 @@ exports.getTaskDetailsByStatusAndDepartmentAndId = async (req, res) => {
         console.error('Erro ocorrido:', error);
         res.status(500).json({ error: 'Erro ao buscar tarefas', details: error.message });
     }
+};
+
+exports.entregaTaskTypeValue = async (req, res) => {
+    const { id, value } = req.body;
+
+    try {
+        const userTask = await prisma.userTask.update({
+             where: {
+                id: id,
+            },
+            data: { entrega: value, status: 'CONCLUIDA' }
+        });
+
+        res.status(200).json(userTask);
+    } catch (error) {
+        console.error('Erro ocorrido:', error);
+        res.status(500).json({ error: 'Erro ao entregar tarefas', details: error.message });
+    }
+};
+
+exports.entregaTaskTypeMetaValue = async (req, res) => {
+    const { id, value } = req.body;
+
+    try {
+        const userTask = await prisma.userTask.findUnique({
+            where: { id },
+            select: { entrega: true,  meta_value: true }
+        });
+
+        const entregaAtual = userTask?.entrega
+        ? parseFloat(userTask.entrega.replace(',', '.'))
+        : 0;
+
+        const valorNovo = parseFloat(value.replace(',', '.'));
+
+        if (isNaN(valorNovo)) {
+            return res.status(400).json({ error: 'Valor de entrega inválido.' });
+        }
+
+        const entregaAtualizada = entregaAtual + valorNovo;
+
+        const updatedTask = await prisma.userTask.update({
+            where: { id },
+            data: { entrega: entregaAtualizada.toString() }
+        });
+
+        res.status(200).json(updatedTask);
+    } catch (error) {
+        console.error('Erro ocorrido:', error);
+        res.status(500).json({ error: 'Erro ao entregar tarefas', details: error.message });
+    }
+};
+
+exports.atualizarStatusPorEntregaMeta = async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    const userTask = await prisma.userTask.findUnique({
+      where: { id },
+      select: { entrega: true, meta_value: true, status: true }
+    });
+
+    if (!userTask) {
+      return res.status(404).json({ error: 'Task não encontrada.' });
+    }
+
+    const entregaNum = userTask.entrega
+      ? parseFloat(userTask.entrega.replace(',', '.'))
+      : 0;
+
+    const parseCurrencyToNumber = (value) => {
+      return Number(value.replace(/[R$\s]/g, '').replace(',', '.'));
+    };
+
+    const metaNum = parseCurrencyToNumber(userTask.meta_value);
+
+    if (isNaN(entregaNum) || isNaN(metaNum)) {
+      return res.status(400).json({ error: 'Valores inválidos para entrega ou meta_value.' });
+    }
+
+    let novoStatus = userTask.status;
+
+    if (entregaNum >= metaNum) {
+      novoStatus = 'CONCLUIDA';
+    }
+
+    const updatedTask = await prisma.userTask.update({
+      where: { id },
+      data: { status: novoStatus }
+    });
+
+    res.status(200).json(updatedTask);
+  } catch (error) {
+    console.error('Erro ocorrido:', error);
+    res.status(500).json({ error: 'Erro ao atualizar status da task', details: error.message });
+  }
 };

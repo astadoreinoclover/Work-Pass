@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, useWindowDimensions, ScrollView, TouchableOpacity, Modal, Dimensions, Platform, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, useWindowDimensions, ScrollView, TouchableOpacity, Modal, Dimensions, Platform, Alert, TextInput, Linking } from 'react-native';
 import { AuthContext } from '@/contexts/Auth';
 import { TaskContext } from '@/contexts/TaskContaxt';
 import axios from 'axios';
@@ -34,6 +34,9 @@ type EmployeeTask = {
   fechamento: string;
   status: string;
   delivery_type: string;
+  meta_value: string;
+  entrega: string;
+  meta_type: string;
 };
 
 export default function Ranking() {
@@ -214,6 +217,80 @@ export default function Ranking() {
     }
     };
 
+  const handleValorChange = (text: string) => {
+      const numericValue = text.replace(/\D/g, '');
+      const number = parseFloat(numericValue) / 100;
+      const formatted = number.toFixed(2).replace('.', ',');
+      setFile(formatted);
+      console.log(file)
+  };
+
+
+  const uploadValue = async () => {
+    if ((!file) || !authContext.authData?.id) return;
+
+    if  (selectedTask?.delivery_type == 'LINK') {
+      try {
+        await axios.put(
+          'http://localhost:3000/api/users/task/entrega',
+          {
+            id: selectedTask.id_task,
+            deliveryType: selectedTask.delivery_type,
+            value: file,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        setModalVisible(false)
+        fetchRanking()
+        setFile('')
+      } catch (err) {
+        console.error(err);
+        Alert.alert('Erro', 'Não foi possível entregar a tarefa.');
+      }
+    } else if(selectedTask?.delivery_type == 'META'){
+      console.log(file)
+      try {
+        await axios.put(
+          'http://localhost:3000/api/users/task/entregaMeta',
+          {
+            id: selectedTask.id_task,
+            deliveryType: selectedTask.delivery_type,
+            value: file,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        await axios.put(
+          'http://localhost:3000/api/status/atualiza',
+          {
+            id: selectedTask.id_task,
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        setModalVisible(false)
+        fetchRanking()
+        setFile('')
+      } catch (err) {
+        console.error(err);
+        Alert.alert('Erro', 'Não foi possível entregar a tarefa.');
+      }
+    }
+  }
+
   const renderItem = ({ item }: { item: EmployeeTask }) => (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
@@ -305,10 +382,157 @@ export default function Ranking() {
                 {selectedTask?.status === 'EM_ANDAMENTO' && selectedTask?.delivery_type === 'LINK' && (
                     <InputTextTask label="Link" value={file || ''} setValue={setFile} />
                 )}
+
+                {selectedTask?.status === 'EM_ANDAMENTO' && selectedTask?.delivery_type === 'META' && 
+                  selectedTask.meta_type === 'VALUE' && (
+                    <>
+                      <Text style={styles.modalInfoText}>
+                        <Text style={styles.modalInfoLabel}>{selectedTask.meta_value} / </Text>
+                        {parseFloat(selectedTask.entrega).toFixed(2).replace('.', ',')}
+                      </Text>
+                      <InputTextTask
+                        label="Valor"
+                        value={file || ''}
+                        setValue={handleValorChange}
+                      />
+                    </>
+                )}
+
+                {selectedTask?.status === 'EM_ANDAMENTO' &&
+                  selectedTask?.delivery_type === 'META' &&
+                  selectedTask.meta_type === 'ENTREGA' && (
+                    <>
+                      <Text style={{ fontSize: 16, marginBottom: 8 }}>
+                        <Text style={{ fontWeight: 'bold' }}>{selectedTask.meta_value} / </Text>
+                        {selectedTask.entrega}
+                      </Text>
+
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={{ fontSize: 16, marginRight: 8 }}>Valor:</Text>
+
+                        <TouchableOpacity
+                          onPress={() => {
+                            const current = parseInt(file || '0', 10);
+                            setFile(String(Math.max(0, current - 1)));
+                          }}
+                          style={{
+                            padding: 10,
+                            backgroundColor: '#2C3E50',
+                            borderRadius: 5,
+                            marginRight: 5,
+                          }}
+                        >
+                          <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#fff' }}>-</Text>
+                        </TouchableOpacity>
+
+                        <TextInput
+                          value={file || '0'}
+                          onChangeText={(text: string) => {
+                            const numeric = text.replace(/\D/g, '');
+                            setFile(numeric);
+                          }}
+                          keyboardType="numeric"
+                          style={{
+                            borderWidth: 1,
+                            borderColor: '#ccc',
+                            padding: 8,
+                            width: 80,
+                            textAlign: 'center',
+                            borderRadius: 5,
+                          }}
+                        />
+
+                        <TouchableOpacity
+                          onPress={() => {
+                            const current = parseInt(file || '0', 10);
+                            setFile(String(current + 1));
+                          }}
+                          style={{
+                            padding: 10,
+                            backgroundColor: '#2C3E50',
+                            borderRadius: 5,
+                            marginLeft: 5,
+                          }}
+                        >
+                          <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#fff' }}>+</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </>
+                )}
+
+                {selectedTask?.status === 'CONCLUIDA' && selectedTask?.delivery_type === 'LINK' && (
+                  <>
+                    <Text style={styles.modalInfoText}>
+                      <Text style={styles.modalInfoLabel}>Conteudo entregue: </Text>
+                      <Text
+                        style={[styles.modalInfoText, { color: 'blue', textDecorationLine: 'underline' }]}
+                        onPress={() => Linking.openURL(selectedTask.entrega)}
+                      >
+                        {selectedTask.entrega}
+                      </Text>
+                    </Text>
+                  </>
+                )}
+
+                {selectedTask?.status === 'CONCLUIDA' && selectedTask?.delivery_type === 'PDF' && (
+                  <>
+                    <Text style={styles.modalInfoText}>
+                      <Text style={styles.modalInfoLabel}>Conteudo entregue: </Text>
+                      <Text
+                        style={[styles.modalInfoText, { color: 'blue', textDecorationLine: 'underline' }]}
+                        onPress={() => Linking.openURL( `http://localhost:3000${selectedTask.entrega}`)}
+                      >
+                        {`${selectedTask.titulo} - ${selectedTask.funcionario}`}
+                      </Text>
+                    </Text>
+                  </>
+                )}
+
+                {selectedTask?.status === 'CONCLUIDA' && selectedTask?.delivery_type === 'IMG' && (
+                  <>
+                    <Text style={styles.modalInfoText}>
+                      <Text style={styles.modalInfoLabel}>Conteudo entregue: </Text>
+                      <Text
+                        style={[styles.modalInfoText, { color: 'blue', textDecorationLine: 'underline' }]}
+                        onPress={() => Linking.openURL( `http://localhost:3000${selectedTask.entrega}`)}
+                      >
+                        {`${selectedTask.titulo} - ${selectedTask.funcionario}`}
+                      </Text>
+                    </Text>
+                  </>
+                )}
+
+                {selectedTask?.status === 'CONCLUIDA' && selectedTask?.delivery_type === 'META' && (
+                  <>
+                    <Text style={styles.modalInfoText}>
+                      <Text style={styles.modalInfoLabel}>{selectedTask.meta_value} / </Text>
+                      {parseFloat(selectedTask.entrega).toFixed(2).replace('.', ',')}
+                    </Text>
+                  </>
+                )}
+
             </ScrollView>
 
-            {selectedTask?.status === 'EM_ANDAMENTO' && (
+            {selectedTask?.status === 'EM_ANDAMENTO' && selectedTask?.delivery_type === 'IMG' &&  (
                 <TouchableOpacity style={styles.closeButton} onPress={uploadFiles}>
+                <Text style={styles.closeButtonText}>Enviar</Text>
+                </TouchableOpacity>
+            )}
+
+            {selectedTask?.delivery_type === 'PDF' && selectedTask?.status === 'EM_ANDAMENTO' && (
+                <TouchableOpacity style={styles.closeButton} onPress={uploadFiles}>
+                <Text style={styles.closeButtonText}>Enviar</Text>
+                </TouchableOpacity>
+            )}
+
+            {selectedTask?.delivery_type === 'LINK' && selectedTask?.status === 'EM_ANDAMENTO' && (
+                <TouchableOpacity style={styles.closeButton} onPress={uploadValue}>
+                <Text style={styles.closeButtonText}>Enviar</Text>
+                </TouchableOpacity>
+            )}
+
+            {selectedTask?.delivery_type === 'META' && selectedTask?.status === 'EM_ANDAMENTO' && (
+                <TouchableOpacity style={styles.closeButton} onPress={uploadValue}>
                 <Text style={styles.closeButtonText}>Enviar</Text>
                 </TouchableOpacity>
             )}

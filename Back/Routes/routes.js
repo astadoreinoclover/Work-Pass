@@ -65,6 +65,9 @@ router.post('/tasks', taskController.getTaskDetailsByStatusAndDepartment)
 router.post('/taskEdite', taskController.getTaskforEdite)
 router.put('/users/:id/task', uploadTaskFile.single("task"), taskController.entregaTask);
 router.post('/tasksFunc', taskController.getTaskDetailsByStatusAndDepartmentAndId)
+router.put('/users/task/entrega', taskController.entregaTaskTypeValue)
+router.put('/users/task/entregaMeta', taskController.entregaTaskTypeMetaValue)
+router.put('/status/atualiza', taskController.atualizarStatusPorEntregaMeta)
 
 // Rotas para Carreira
 router.post('/carreiras', carreiraController.createCarreira);

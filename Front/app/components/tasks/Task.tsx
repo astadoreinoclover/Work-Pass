@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, useWindowDimensions, ScrollView, TouchableOpacity, Modal, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, FlatList, useWindowDimensions, ScrollView, TouchableOpacity, Modal, Dimensions, Linking } from 'react-native';
 import { AuthContext } from '@/contexts/Auth';
 import { TaskContext } from '@/contexts/TaskContaxt';
 import axios from 'axios';
@@ -30,6 +30,8 @@ type EmployeeTask = {
   fechamento: string;
   status: string;
   delivery_type: string;
+  entrega: string;
+  meta_value: string;
 };
 
 export default function Ranking() {
@@ -197,8 +199,58 @@ export default function Ranking() {
                   {filterTask}
                 </Text>
               </View>
+
+              {selectedTask?.status === 'CONCLUIDA' && selectedTask?.delivery_type === 'LINK' && (
+                <>
+                  <Text style={styles.modalInfoText}>
+                    <Text style={styles.modalInfoLabel}>Conteudo entregue: </Text>
+                      <Text
+                        style={[styles.modalInfoText, { color: 'blue', textDecorationLine: 'underline' }]}
+                        onPress={() => Linking.openURL(selectedTask.entrega)}
+                      >
+                        {selectedTask.entrega}
+                      </Text>
+                  </Text>
+                </>
+              )}
+
+              {selectedTask?.status === 'CONCLUIDA' && selectedTask?.delivery_type === 'PDF' && (
+                <>
+                  <Text style={styles.modalInfoText}>
+                    <Text style={styles.modalInfoLabel}>Conteudo entregue: </Text>
+                      <Text
+                        style={[styles.modalInfoText, { color: 'blue', textDecorationLine: 'underline' }]}
+                        onPress={() => Linking.openURL( `http://localhost:3000${selectedTask.entrega}`)}
+                      >
+                        {`${selectedTask.titulo} - ${selectedTask.funcionario}`}
+                      </Text>
+                  </Text>
+                </>
+              )}
+
+               {selectedTask?.status === 'CONCLUIDA' && selectedTask?.delivery_type === 'IMG' && (
+                <>
+                  <Text style={styles.modalInfoText}>
+                    <Text style={styles.modalInfoLabel}>Conteudo entregue: </Text>
+                      <Text
+                        style={[styles.modalInfoText, { color: 'blue', textDecorationLine: 'underline' }]}
+                        onPress={() => Linking.openURL( `http://localhost:3000${selectedTask.entrega}`)}
+                      >
+                        {`${selectedTask.titulo} - ${selectedTask.funcionario}`}
+                      </Text>
+                  </Text>
+                </>
+              )}
+
+              {selectedTask?.status === 'CONCLUIDA' && selectedTask?.delivery_type === 'META' && (
+                <>
+                  <Text style={styles.modalInfoText}>
+                    <Text style={styles.modalInfoLabel}>{selectedTask.meta_value} / </Text>
+                    {parseFloat(selectedTask.entrega).toFixed(2).replace('.', ',')}
+                  </Text>
+                </>
+              )}
             </ScrollView>
-            
             <TouchableOpacity
               style={styles.closeButton}
               onPress={() => setModalVisible(false)}
