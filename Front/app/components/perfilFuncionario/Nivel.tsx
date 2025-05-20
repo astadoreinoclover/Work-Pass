@@ -20,7 +20,7 @@ const Nivel: React.FC<NivelHabilidadeProps> = ({ funcionario, foto }) => {
       <View style={styles.profileImageContainer}>
         {foto ? (
          <Image 
-            source={{ uri: `http://localhost:3000${foto}` }} 
+            source={{ uri: `http://localhost:3000/Middlewares/uploads/tasks${foto}` }} 
             style={{ width: 125, height: 125, borderRadius: 62.5 }} 
           />
         ) : (

@@ -65,7 +65,7 @@ exports.getUserById = async (req, res) => {
 
 exports.updateUserPhoto = async (req, res) => {
     const { id } = req.params;
-    const foto = req.file ? `/uploads/${req.file.filename}` : null;
+    const foto = req.file ? `/${req.file.filename}` : null;
 
     console.log("ID recebido:", id);
     console.log("Arquivo recebido:", req.file);

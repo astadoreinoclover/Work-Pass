@@ -152,7 +152,7 @@ export default function FormEditarDados() {
                         <Image source={{ uri: photo }} style={styles.image} />
                     ) : photoPre ? (
                         <View>
-                            <Image source={{uri: `http://localhost:3000${photoPre}`}} style={[styles.image, {top:11}]} />
+                            <Image source={{uri: `http://localhost:3000/Middlewares/uploads/tasks${photoPre}`}} style={[styles.image, {top:11}]} />
                             <Text style={{textAlign: 'center', color:'#fff', top:10}}>Trocar Foto</Text>
                         </View>
                     ) : (<Text style={styles.photoPlaceholder}>Selecionar Foto</Text>)

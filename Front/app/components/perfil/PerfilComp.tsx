@@ -72,6 +72,7 @@ const UserProfile: React.FC = () => {
         };
         fetchFuncionario();
     }, [authContext.authData]);
+    console.log(foto)
 
     return (
         <ScrollView>
@@ -79,7 +80,7 @@ const UserProfile: React.FC = () => {
                 <View style={[{ width: width*0.95, display: 'flex', alignItems:'center', flexDirection: width >768?'row':'column'}]}>
                     {foto ? (
                         <Image 
-                            source={{ uri: `http://localhost:3000${foto}` }} 
+                            source={{ uri: `http://localhost:3000/Middlewares/uploads/tasks${foto}` }} 
                             style={{ width: 125, height: 125, borderRadius: 62.5 }} 
                         />
                     ) : (
