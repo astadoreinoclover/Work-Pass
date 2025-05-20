@@ -220,7 +220,7 @@ export default function Ranking() {
                     <Text style={styles.modalInfoLabel}>Conteudo entregue: </Text>
                       <Text
                         style={[styles.modalInfoText, { color: 'blue', textDecorationLine: 'underline' }]}
-                        onPress={() => Linking.openURL( `http://localhost:3000${selectedTask.entrega}`)}
+                        onPress={() => Linking.openURL( `http://localhost:3000/Middlewares${selectedTask.entrega}`)}
                       >
                         {`${selectedTask.titulo} - ${selectedTask.funcionario}`}
                       </Text>
@@ -234,7 +234,7 @@ export default function Ranking() {
                     <Text style={styles.modalInfoLabel}>Conteudo entregue: </Text>
                       <Text
                         style={[styles.modalInfoText, { color: 'blue', textDecorationLine: 'underline' }]}
-                        onPress={() => Linking.openURL( `http://localhost:3000${selectedTask.entrega}`)}
+                        onPress={() => Linking.openURL( `http://localhost:3000/Middlewares${selectedTask.entrega}`)}
                       >
                         {`${selectedTask.titulo} - ${selectedTask.funcionario}`}
                       </Text>
