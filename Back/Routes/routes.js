@@ -13,6 +13,7 @@ const upload = require("../Middlewares/uploadMiddleware");
 const uploadTaskFile = require("../Middlewares/uploadMiddleware");
 const emderecoController = require('../Controllers/EnderecoController.js')
 
+router.put('/task/validate', taskController.validationTask)
 router.post('/ranking', taskController.getRanking)
 
 // Rotas de login e registro
@@ -61,13 +62,14 @@ router.put('/task/:id', authMiddleware, taskController.updateTask);
 router.delete('/task/:id', authMiddleware, taskController.deleteTask);
 router.post('/taskUser', taskController.createTaskUser);
 router.delete('/taskUser/:id', authMiddleware, taskController.deleteAllTasksByUserId);
-router.post('/tasks', taskController.getTaskDetailsByStatusAndDepartment)
-router.post('/taskEdite', taskController.getTaskforEdite)
+router.post('/tasks', taskController.getTaskDetailsByStatusAndDepartment);
+router.post('/taskEdite', taskController.getTaskforEdite);
 router.put('/users/:id/task', uploadTaskFile.single("task"), taskController.entregaTask);
-router.post('/tasksFunc', taskController.getTaskDetailsByStatusAndDepartmentAndId)
-router.put('/users/task/entrega', taskController.entregaTaskTypeValue)
-router.put('/users/task/entregaMeta', taskController.entregaTaskTypeMetaValue)
-router.put('/status/atualiza', taskController.atualizarStatusPorEntregaMeta)
+router.post('/tasksFunc', taskController.getTaskDetailsByStatusAndDepartmentAndId);
+router.put('/users/task/entrega', taskController.entregaTaskTypeValue);
+router.put('/users/task/entregaMeta', taskController.entregaTaskTypeMetaValue);
+router.put('/status/atualiza', taskController.atualizarStatusPorEntregaMeta);
+
 
 // Rotas para Carreira
 router.post('/carreiras', carreiraController.createCarreira);

@@ -74,6 +74,7 @@ model UserTask {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
   entrega   String?
+  finalizado Validation @default(FALSE)
 }
 
 model Gaming {
@@ -154,4 +155,9 @@ enum DeliveryType {
 enum MetaType {
     VALUE
     ENTREGA
+}
+
+enum Validation {
+  TRUE
+  FALSE
 }

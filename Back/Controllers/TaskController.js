@@ -158,7 +158,8 @@ exports.getTaskDetailsByStatusAndDepartment = async (req, res) => {
                     meta_type: userTask.meta_type,
                     meta_value: userTask.meta_value,
                     status: userTask.status,
-                    entrega: userTask.entrega
+                    entrega: userTask.entrega,
+                    finalizado: userTask.finalizado,
                 }))
         );
 
@@ -221,46 +222,65 @@ exports.getRanking = async (req, res) => {
     }
 
     try {
-      const usersPoints = await prisma.user.findMany({
-        where: {
-          id_empresa: parseInt(id_empresa),
-          departamento: departamento === 'Geral' ? undefined : departamento, 
-          role: 'USER' 
-        },
-        select: {
-          id: true,
-          name: true,
-          departamento: true,
-          tasks: {
+        const usersPoints = await prisma.user.findMany({
             where: {
-              status: 'CONCLUIDA',
-              updatedAt: {
-                gte: startDate,
-                lte: endDate,
-              },
+                id_empresa: parseInt(id_empresa),
+                departamento: departamento === 'Geral' ? undefined : departamento,
+                role: 'USER'
             },
             select: {
-              task: {
-                select: {
-                  valorEntrega: true,
+                id: true,
+                name: true,
+                departamento: true,
+                tasks: {
+                    where: {
+                        updatedAt: {
+                            gte: startDate,
+                            lte: endDate,
+                        },
+                        OR: [
+                            { status: 'CONCLUIDA' },
+                            { status: 'NAO_ENTREGUE' }
+                        ],
+                    },
+                    select: {
+                        status: true,
+                        task: {
+                            select: {
+                                valorEntrega: true,
+                            },
+                        },
+                    },
                 },
-              },
             },
-          },
-        },
-      });
-
-      const result = usersPoints.map(user => {
-        const totalPontos = user.tasks.reduce((sum, userTask) => sum + userTask.task.valorEntrega, 0);
-        return {
-          id: user.id,
-          name: user.name,
-          departament: user.departamento,
-          points: totalPontos,
-        };
-      });
-
-      return res.json(result);
+        });
+        
+        const result = usersPoints.map(user => {
+            let totalPontos = 0;
+        
+            user.tasks.forEach(userTask => {
+                const pontos = userTask.task.valorEntrega;
+                if (userTask.status === 'CONCLUIDA') {
+                    totalPontos += pontos;
+                } else if (userTask.status === 'NAO_ENTREGUE') {
+                    totalPontos -= pontos;
+                }
+            });
+        
+            // Garantir que nunca retorne pontos negativos
+            if (totalPontos < 0) {
+                totalPontos = 0;
+            }
+        
+            return {
+                id: user.id,
+                name: user.name,
+                departament: user.departamento,
+                points: totalPontos,
+            };
+        });
+        
+        return res.json(result);
     } catch (error) {
       console.error("Erro ao buscar pontos dos usuários:", error);
       return res.status(500).json({ error: "Erro interno do servidor" });
@@ -491,4 +511,38 @@ exports.atualizarStatusPorEntregaMeta = async (req, res) => {
     console.error('Erro ocorrido:', error);
     res.status(500).json({ error: 'Erro ao atualizar status da task', details: error.message });
   }
+};
+
+exports.validationTask = async (req, res) => {
+    const { id, button } = req.body;
+    console.log("ID recebido:", id);
+    console.log("Botão recebido:", button);
+    try {
+        if (!id || !button) {
+            return res.status(400).json({ error: 'ID e botão são obrigatórios' });
+        }
+
+        if (button === 'ACEITO') {
+            const task = await prisma.userTask.update({
+                where: { id: parseInt(id) },
+                data: {
+                    finalizado: 'TRUE'
+                }
+            });
+            res.status(200).json(task);
+        } else if (button === 'REJEITADO') {
+            const task = await prisma.userTask.update({
+                where: { id: parseInt(id) },
+                data: {
+                    status: 'EM_ANDAMENTO',
+                }
+            });
+            res.status(200).json(task);
+        } else {
+            return res.status(400).json({ error: 'Botão inválido' });
+        }
+    } catch (error) {
+        console.error('Erro ocorrido:', error);
+        res.status(500).json({ error: 'Erro ao validar tarefa', details: error.message });
+    }
 };

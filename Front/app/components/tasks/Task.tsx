@@ -14,6 +14,7 @@ type AuthData = {
   name: string | null;
   departamento: string;
   id_empresa: number;
+  token: string | null;
 };
 
 type AuthContextType = {
@@ -32,6 +33,7 @@ type EmployeeTask = {
   delivery_type: string;
   entrega: string;
   meta_value: string;
+  finalizado: string;
 };
 
 export default function Ranking() {
@@ -47,6 +49,7 @@ export default function Ranking() {
   const [selectedTask, setSelectedTask] = useState<EmployeeTask | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [ token, setToken ] = useState<string | null>(null);
 
 
   const numColumns = width >= 992 ? 3 : width >= 600 ? 2 : 1;
@@ -55,6 +58,7 @@ export default function Ranking() {
     if (authContext?.authData) {
       setEmail(authContext.authData.email);
       setName(authContext.authData.name);
+      setToken(authContext.authData.token);
     }
   }, [authContext?.authData]);
 
@@ -80,6 +84,23 @@ export default function Ranking() {
       fetchRanking();
     }, [authContext?.authData, filterTask])
   );
+
+  const fetchRanking = async () => {
+    try {
+      const department = authContext?.authData?.departamento || 'Geral';
+      const empresa = authContext?.authData?.id_empresa || 0;
+      const status = filterTask;
+
+      const response = await axios.post('http://localhost:3000/api/tasks', {
+        status: status,
+        departamento: department,
+        id_empresa: empresa,
+      });
+      setEmployeesTask(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar tasks:', error);
+    }
+  };
 
   const confirmDelete = (taskId: number) => {
     setSelectedTaskId(taskId);
@@ -114,6 +135,21 @@ export default function Ranking() {
         <Text style={styles.noDataText}>Não há dados disponíveis.</Text>
       </View>
     );
+  }
+
+  const validarTask = async (taskId: number | undefined, status: string) => {
+    try {
+      if (taskId) {
+        const response = await axios.put(`http://localhost:3000/api/task/validate`, { id: taskId, button: status });
+        if (response.status === 200) {
+          setEmployeesTask((prevTasks) => prevTasks.map(task => task.id_task === taskId ? { ...task, status } : task));
+          setModalVisible(false);
+          fetchRanking();
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao validar a task:', error);
+    }
   }
 
   const renderItem = ({ item }: { item: EmployeeTask }) => (
@@ -198,6 +234,23 @@ export default function Ranking() {
                   <Text style={styles.modalInfoLabel}>Status: </Text>
                   {filterTask}
                 </Text>
+                {selectedTask?.finalizado === 'FALSE' && (
+                  <Text style={styles.modalInfoText}>
+                  <Text style={styles.modalInfoLabel}>Validar Entrega: </Text>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => validarTask(selectedTask?.id_task, 'ACEITO')}
+                  >
+                    <Text style={styles.closeButtonText}>Validar</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => validarTask(selectedTask?.id_task, 'REJEITADO')}
+                  >
+                    <Text style={styles.closeButtonText}>Rejeitar</Text>
+                  </TouchableOpacity>
+                </Text>
+                )}
               </View>
 
               {selectedTask?.status === 'CONCLUIDA' && selectedTask?.delivery_type === 'LINK' && (
