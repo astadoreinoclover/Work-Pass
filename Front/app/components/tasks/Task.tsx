@@ -234,17 +234,17 @@ export default function Ranking() {
                   <Text style={styles.modalInfoLabel}>Status: </Text>
                   {filterTask}
                 </Text>
-                {selectedTask?.finalizado === 'FALSE' && (
+                {selectedTask?.finalizado === 'FALSE' && selectedTask.status === 'CONCLUIDA' && (
                   <Text style={styles.modalInfoText}>
                   <Text style={styles.modalInfoLabel}>Validar Entrega: </Text>
                   <TouchableOpacity
-                    style={styles.closeButton}
+                    style={[styles.closeButton, {marginRight: 10, backgroundColor: '#449dfc'}]}
                     onPress={() => validarTask(selectedTask?.id_task, 'ACEITO')}
                   >
                     <Text style={styles.closeButtonText}>Validar</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={styles.closeButton}
+                    style={[styles.closeButton, {backgroundColor: '#9fbbda'}]}
                     onPress={() => validarTask(selectedTask?.id_task, 'REJEITADO')}
                   >
                     <Text style={styles.closeButtonText}>Rejeitar</Text>
