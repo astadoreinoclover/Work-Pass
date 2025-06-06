@@ -5,7 +5,9 @@ export type RouteParams = {
 };
 
 export type Habilidade = {
-    nome: string;
+    habilidade: {
+        nome: string;
+    }
     nivel: number;
 };
 

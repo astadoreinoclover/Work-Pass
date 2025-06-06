@@ -10,7 +10,7 @@ type HabilidadeCardProps = {
 const HabilidadeCard: React.FC<HabilidadeCardProps> = ({ title, content }) => {
     return (
         <View style={styles.card}>
-            <Text style={styles.cardTitle}>{title}: {content}</Text>
+            <Text style={styles.cardTitle}>{title} - {content}</Text>
         </View>
     );
 };

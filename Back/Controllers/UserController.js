@@ -54,7 +54,13 @@ exports.getUserById = async (req, res) => {
     try {
         const user = await prisma.user.findUnique({
             where: { id: parseInt(id) },
-            include: { empresa: true, logs: true, gaming: true, tasks: true, carreira: true, habilidades: true },
+            include: { empresa: true, logs: true, gaming: true, tasks: true, carreira: true,
+                habilidades: {
+                    include: {
+                        habilidade: true // inclui o nome da habilidade
+                    }
+                }
+            } ,
         });
         if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
         res.json(user);

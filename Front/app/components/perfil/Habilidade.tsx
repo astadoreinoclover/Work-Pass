@@ -10,7 +10,7 @@ type HabilidadeCardProps = {
 const Habilidade: React.FC<HabilidadeCardProps> = ({ title, content }) => {
     return (
         <View style={styles.card}>
-            <Text style={styles.cardTitle}>{title}: {content}</Text>
+            <Text style={styles.cardTitle}>{title} - {content}</Text>
         </View>
     );
 };
@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 1.41,
         elevation: 2,
+        height: 30
     },
     cardTitle: {
         fontWeight: 'bold',

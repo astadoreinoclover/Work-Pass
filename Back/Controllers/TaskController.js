@@ -525,11 +525,112 @@ exports.validationTask = async (req, res) => {
         if (button === 'ACEITO') {
             const task = await prisma.userTask.update({
                 where: { id: parseInt(id) },
+                data: { finalizado: 'TRUE' },
+                include: { task: true } // garantir acesso aos pontos
+            });
+
+            const pontos = Number(task.task?.valorEntrega || 0);
+            const userId = task.user_id;
+
+            if (isNaN(pontos)) {
+                return res.status(400).json({ error: 'Pontos da tarefa são inválidos ou ausentes.' });
+            }
+
+            const gaming = await prisma.gaming.findUnique({
+                where: { user_id: userId }
+            });
+
+            if (!gaming) {
+                return res.status(404).json({ error: 'Registro de gamificação não encontrado.' });
+            }
+
+            let xpAtual = Number(gaming.xp || 0);
+            let novoXp = xpAtual + pontos;
+            let nivel = gaming.nivel;
+            let xpNecessario = gaming.xpNecessarioParaSubirNivel;
+
+            // Logs úteis
+            console.log({ xpAtual, pontos, novoXp, nivel, xpNecessario });
+
+            // Sobe de nível enquanto possível
+            while (novoXp >= xpNecessario) {
+                novoXp -= xpNecessario;
+                nivel += 1;
+                xpNecessario = Math.floor(xpNecessario * 1.5); // ajuste conforme sua regra
+            }
+
+            // Garante que xp está definido e é um inteiro
+            novoXp = Math.floor(novoXp);
+
+            const updatedGaming = await prisma.gaming.update({
+                where: { user_id: userId },
                 data: {
-                    finalizado: 'TRUE'
+                    xp: novoXp,
+                    nivel: nivel,
+                    xpNecessarioParaSubirNivel: xpNecessario
                 }
             });
-            res.status(200).json(task);
+
+            const habilidadeId = task.task.habilidadeId;
+
+            if (habilidadeId) {
+                // Tenta encontrar a habilidade do usuário
+                let habilidadeUser = await prisma.habilidadeUser.findFirst({
+                    where: {
+                        id_habilidade: habilidadeId,
+                        user_id: userId
+                    }
+                });
+
+                if (habilidadeUser) {
+                    // Atualiza se já existe
+                    let habXp = habilidadeUser.xp + pontos;
+                    let habNivel = habilidadeUser.nivel;
+                    let habXpNecessario = habilidadeUser.xpNecessarioParaSubirNivel;
+
+                    while (habXp >= habXpNecessario) {
+                        habXp -= habXpNecessario;
+                        habNivel += 1;
+                        habXpNecessario = Math.floor(habXpNecessario * 1.5);
+                    }
+
+                    habXp = Math.floor(habXp);
+
+                    habilidadeUser = await prisma.habilidadeUser.update({
+                        where: { id: habilidadeUser.id },
+                        data: {
+                            xp: habXp,
+                            nivel: habNivel,
+                            xpNecessarioParaSubirNivel: habXpNecessario
+                        }
+                    });
+                } else {
+                    // Cria se não existir
+                    let habXp = pontos;
+                    let habNivel = 1;
+                    let habXpNecessario = 50;
+
+                    while (habXp >= habXpNecessario) {
+                        habXp -= habXpNecessario;
+                        habNivel += 1;
+                        habXpNecessario = Math.floor(habXpNecessario * 1.5);
+                    }
+
+                    habXp = Math.floor(habXp);
+
+                    habilidadeUser = await prisma.habilidadeUser.create({
+                        data: {
+                            id_habilidade: habilidadeId,
+                            user_id: userId,
+                            xp: habXp,
+                            nivel: habNivel,
+                            xpNecessarioParaSubirNivel: habXpNecessario
+                        }
+                    });
+                }
+            }
+
+            return res.status(200).json({ task, updatedGaming });
         } else if (button === 'REJEITADO') {
             const task = await prisma.userTask.update({
                 where: { id: parseInt(id) },

@@ -56,13 +56,15 @@ const FuncionarioProfile: React.FC = () => {
                 <View style={[styles.headerContainer, { flexDirection: width >=768?'row': 'column', width:width*0.9, justifyContent:width>=768?'space-around':'center', alignItems:width>=768?'baseline':'center'}]}>
                     <View style={{flexDirection: width >=768?'row': 'column'}}>
                        <Text style={{ fontWeight: 'bold', color: '#2C3E50', fontSize: 20, marginRight:10 }}>Habilidades:</Text>
-                        {funcionario.habilidades?.map((habilidade, index) => (
-                            <HabilidadeCard 
-                                key={index} 
-                                title={habilidade.nome} 
-                                content={habilidade.nivel} 
-                            />
-                        ))} 
+                        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                            {funcionario.habilidades?.map((habilidade, index) => (
+                                <HabilidadeCard 
+                                    key={index} 
+                                    title={habilidade.habilidade.nome} 
+                                    content={habilidade.nivel} 
+                                />
+                            ))}
+                        </ScrollView>
                     </View>
                     <Text style={{fontWeight: 'bold', color: '#2C3E50', fontSize:20}}>Nivel: {gaming ? gaming.nivel : 'N/A'}</Text>
                 </View>

@@ -1,10 +1,11 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Text,View, StyleSheet, useWindowDimensions, ScrollView, Image } from 'react-native';
 import { AuthContext } from '@/contexts/Auth';
 import ItemComponent from './ItemComponentPerfil';
 import axios from 'axios';
 import NivelUser from './NivelUser';
 import Habilidade from './Habilidade';
+import { useFocusEffect } from 'expo-router';
 
 type Gaming = {
     xp: number;
@@ -13,7 +14,9 @@ type Gaming = {
 }
 
 export type Habilidade = {
-    nome: string;
+    habilidade: {
+        nome: string;
+    }
     nivel: number;
 };
 
@@ -45,33 +48,35 @@ const UserProfile: React.FC = () => {
     const [funcionario, setFuncionario] = useState<Funcionario | null>(null);
     const [foto, setFoto] = useState<string | null>(null);
 
-    useEffect(() => {
-        setEmail(authContext.authData?.email || null);
-        setName(authContext.authData?.name || null);
-        setDataNas(authContext.authData?.dataNascimento || null)
-        setCpf(authContext.authData?.cpf || null)
-        setNumero(authContext.authData?.numero || null)
-        setDepartament(authContext.authData?.departamento || null)
-        setFuncao(authContext.authData?.funcao || null)
-        setRole(authContext.authData?.role || null)
-        setFoto(authContext.authData?.foto || null)
+    useFocusEffect(
+        useCallback(() => {
+            setEmail(authContext.authData?.email || null);
+            setName(authContext.authData?.name || null);
+            setDataNas(authContext.authData?.dataNascimento || null)
+            setCpf(authContext.authData?.cpf || null)
+            setNumero(authContext.authData?.numero || null)
+            setDepartament(authContext.authData?.departamento || null)
+            setFuncao(authContext.authData?.funcao || null)
+            setRole(authContext.authData?.role || null)
+            setFoto(authContext.authData?.foto || null)
 
-        const fetchFuncionario = async () => {
-            try {
-                const response = await axios.get(`http://localhost:3000/api/user/${authContext.authData?.id}`);
-                const data = response.data;
-                console.log('Dados do funcionário recebidos:', data);
-                setFuncionario(data);
-                const responseGame = await axios.get(`http://localhost:3000/api/gaming/${authContext.authData?.id}`);
-                const dataGame = responseGame.data;
-                console.log('Dados do funcionário recebidos:', dataGame);
-                setGaming(dataGame[0]);
-            } catch (error) {
-                console.error('Erro ao buscar funcionário:', error);
-            }
-        };
-        fetchFuncionario();
-    }, [authContext.authData]);
+            const fetchFuncionario = async () => {
+                try {
+                    const response = await axios.get(`http://localhost:3000/api/user/${authContext.authData?.id}`);
+                    const data = response.data;
+                    console.log('Dados do funcionário recebidos:', data);
+                    setFuncionario(data);
+                    const responseGame = await axios.get(`http://localhost:3000/api/gaming/${authContext.authData?.id}`);
+                    const dataGame = responseGame.data;
+                    console.log('Dados do funcionário recebidos:', dataGame);
+                    setGaming(dataGame[0]);
+                } catch (error) {
+                    console.error('Erro ao buscar funcionário:', error);
+                }
+            };
+            fetchFuncionario();
+        }, [authContext.authData])
+    )
     console.log(foto)
 
     return (
@@ -104,12 +109,12 @@ const UserProfile: React.FC = () => {
                     <ItemComponent title="Função" content={funcao} />
                     {role === 'USER' && (
                         <View style={{ flexDirection: width >= 768 ? 'row' : 'column' }}>
-                            <Text style={{ fontWeight: 'bold', color: '#2C3E50', fontSize: 20, marginHorizontal: 10 }}>
+                            <Text style={{ fontWeight: 'bold', color: '#2C3E50', fontSize: 20, marginHorizontal: 10, marginTop:10 }}>
                                 Habilidades:
                             </Text>
-                            <ScrollView>
+                            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }}>
                                 {funcionario?.habilidades?.map((habilidade, index) => (
-                                    <Habilidade key={index} title={habilidade.nome} content={habilidade.nivel} />
+                                    <Habilidade key={index} title={habilidade.habilidade.nome} content={habilidade.nivel} />
                                 ))}
                             </ScrollView>
                         </View>
