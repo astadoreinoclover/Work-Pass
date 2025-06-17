@@ -1,10 +1,12 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { View, StyleSheet, useWindowDimensions,Text } from 'react-native';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { View, StyleSheet, useWindowDimensions, Text } from 'react-native';
 import BarSuperior from '@/components/bars/BarSuperior';
 import { AuthContext } from '@/contexts/Auth';
 import BarInferior from '@/components/bars/BarInferior';
 import RelatorioFilter from '@/components/relatorios/RelatorioFilter';
 import RelatorioGrafico from '@/components/relatorios/RelatorioGrafico';
+import { useFocusEffect } from 'expo-router';
+import axios from 'axios';
 
 export default function Rankings() {
   const { width, height } = useWindowDimensions();
@@ -12,22 +14,55 @@ export default function Rankings() {
   const [name, setName] = useState<string | null>(null);
   const authContext = useContext(AuthContext);
 
+  const { authData } = useContext(AuthContext);
+
+  useFocusEffect(
+    useCallback(() => {
+      console.log(authData?.token)
+      const fetchFuncionario = async () => {
+        try {
+          const response = await axios.get('http://localhost:3000/api/protected', {
+            headers: {
+              Authorization: `Bearer ${authData?.token}`,
+            },
+          });
+
+          console.log('>>> RESPONSE RECEBIDO:', response);
+
+          const data = response.data;
+          console.log('data.message:', data.message);
+
+          if (data.message?.toLowerCase().includes('acesso permitido')) {
+            console.log('aleluia');
+          } else {
+            console.log('ENTROU NO ELSE');
+            authContext.logout();
+          }
+        } catch (error) {
+          console.error('>>> CATCH:', error);
+          authContext.logout();
+        }
+      };
+      fetchFuncionario();
+    }, [authData])
+  )
+
   useEffect(() => {
     setEmail(authContext.authData?.email || null);
     setName(authContext.authData?.name || null)
   }, [authContext.authData]);
-  
+
   return (
     <View style={styles.container}>
-      <View style={{position: 'absolute', top:0}}><BarSuperior /></View>
-      <View style={{display: 'flex',flexDirection: width >=768 ? 'row' : 'column', height: width >=768 ? height*0.6: height*0.8}}>
-        <View style={{width: width*0.5, right:0, position: 'relative', alignItems: 'center'}}>
-          <Text style={[styles.title,{fontSize: width>=768 ?25:18}]}>Relatorio</Text>
+      <View style={{ position: 'absolute', top: 0 }}><BarSuperior /></View>
+      <View style={{ display: 'flex', flexDirection: width >= 768 ? 'row' : 'column', height: width >= 768 ? height * 0.6 : height * 0.8 }}>
+        <View style={{ width: width * 0.5, right: 0, position: 'relative', alignItems: 'center' }}>
+          <Text style={[styles.title, { fontSize: width >= 768 ? 25 : 18 }]}>Relatorio</Text>
           <RelatorioGrafico />
         </View>
-        <View style={{width: width*0.5, left:0, position: 'relative', alignItems: 'center'}}><RelatorioFilter /></View>
+        <View style={{ width: width * 0.5, left: 0, position: 'relative', alignItems: 'center' }}><RelatorioFilter /></View>
       </View>
-      <View style={{position: 'absolute', bottom:0}}><BarInferior /></View>
+      <View style={{ position: 'absolute', bottom: 0 }}><BarInferior /></View>
     </View>
   );
 }

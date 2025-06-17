@@ -38,27 +38,29 @@ export default function Ranking() {
       }
     };
 
-      fetchFilters();
-    }, [])
+    fetchFilters();
+  }, [])
 
-    useFocusEffect(
-      useCallback(() => {
-        const fetchRanking = async () => {
-          try {
-            const response = await axios.post(`http://localhost:3000/api/ranking`, {
-              departamento: filter,
-              id_empresa: authContext.authData?.id_empresa,
-              periodo: period
-            });
-            setEmployees(response.data);
-          } catch (error) {
-            console.error('Erro ao buscar ranking:', error);
-          }
-        };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchRanking = async () => {
+        try {
+          const response = await axios.post(`http://localhost:3000/api/ranking`, {
+            departamento: filter,
+            id_empresa: authContext.authData?.id_empresa,
+            periodo: period
+          });
+          const sortedEmployees = response.data.sort((a: { points: number; }, b: { points: number; }) => b.points - a.points);
 
-        fetchRanking();
-      }, [filter, period])
-    );
+          setEmployees(sortedEmployees);
+        } catch (error) {
+          console.error('Erro ao buscar ranking:', error);
+        }
+      };
+
+      fetchRanking();
+    }, [filter, period])
+  );
 
   const renderEmployee = ({ item, index }: { item: Employee; index: number }) => (
     <View style={styles.row}>
