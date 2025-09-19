@@ -51,4 +51,4 @@ node server.js
 
 ```
 
-Após iniciar o back-end, o aplicativo estará pronto para uso.
+Após iniciar o back-end, o aplicativo estará pronto para ser utilizado.
